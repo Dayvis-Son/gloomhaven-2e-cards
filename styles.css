@@ -62,3 +62,18 @@ body {
   flex: 1;
   padding: 20px;
 }
+
+#card-list {
+  list-style: none;
+  padding: 0;
+}
+
+#card-list li {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+
+#card-list li:hover {
+  background-color: #2f2f2f;
+}
