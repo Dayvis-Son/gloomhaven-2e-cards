@@ -1,0 +1,14 @@
+[
+  {
+    "id": "brute",
+    "name": "Brute"
+  },
+  {
+    "id": "spellweaver",
+    "name": "Spellweaver"
+  },
+  {
+    "id": "scoundrel",
+    "name": "Scoundrel"
+  }
+]
