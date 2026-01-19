@@ -1,20 +1,15 @@
-fetch("data/enhancements.json")
-  .then(response => {
-    if (!response.ok) {
-      throw new Error("Failed to load enhancements.json");
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log("Enhancement data loaded:", data);
+const classListEl = document.getElementById("class-list");
 
-    const status = document.getElementById("status");
-    status.textContent = `Enhancement data loaded successfully (${Object.keys(data).length} enhancements)`;
-    status.style.color = "#7CFC9A";
+fetch("data/classes.json")
+  .then(res => res.json())
+  .then(classes => {
+    classes.forEach(cls => {
+      const li = document.createElement("li");
+      li.textContent = cls.name;
+      li.dataset.id = cls.id;
+      classListEl.appendChild(li);
+    });
   })
-  .catch(error => {
-    console.error(error);
-    const status = document.getElementById("status");
-    status.textContent = "Error loading enhancement data.";
-    status.style.color = "#FF6B6B";
+  .catch(err => {
+    console.error("Failed to load classes.json", err);
   });
