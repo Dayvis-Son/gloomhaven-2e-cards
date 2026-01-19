@@ -10,27 +10,27 @@ const costOutputEl = document.getElementById("cost-output");
 
 let allCards = [];
 let enhancementCosts = {};
+let enhancementRules = {};
 let currentCard = null;
 let currentAction = null;
 
-fetch("data/enhancements.json")
-  .then(r => r.json())
-  .then(data => enhancementCosts = data);
+Promise.all([
+  fetch("data/enhancements.json").then(r => r.json()),
+  fetch("data/enhancement-rules.json").then(r => r.json()),
+  fetch("data/cards.json").then(r => r.json()),
+  fetch("data/classes.json").then(r => r.json())
+]).then(([costs, rules, cards, classes]) => {
+  enhancementCosts = costs;
+  enhancementRules = rules;
+  allCards = cards;
 
-fetch("data/cards.json")
-  .then(r => r.json())
-  .then(cards => allCards = cards);
-
-fetch("data/classes.json")
-  .then(r => r.json())
-  .then(classes => {
-    classes.forEach(cls => {
-      const li = document.createElement("li");
-      li.textContent = cls.name;
-      li.onclick = () => showCardsForClass(cls);
-      classListEl.appendChild(li);
-    });
+  classes.forEach(cls => {
+    const li = document.createElement("li");
+    li.textContent = cls.name;
+    li.onclick = () => showCardsForClass(cls);
+    classListEl.appendChild(li);
   });
+});
 
 function showCardsForClass(cls) {
   contentTitleEl.textContent = `${cls.name} Cards`;
@@ -61,7 +61,6 @@ function showCard(card) {
     const btn = document.createElement("button");
 
     btn.textContent = `${action.type.toUpperCase()} (${action.multi ? "Multi" : "Single"})`;
-
     btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
@@ -74,9 +73,13 @@ function selectAction(action) {
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an enhancement.";
 
-  Object.keys(enhancementCosts).forEach(key => {
-    // regra simples inicial: enhancement só vale se existir custo
-    if (enhancementCosts[key][action.multi ? "multi" : "single"]) {
+  const allowed = enhancementRules[action.type] || [];
+
+  allowed.forEach(key => {
+    const costData = enhancementCosts[key];
+    const mode = action.multi ? "multi" : "single";
+
+    if (costData && costData[mode]) {
       const opt = document.createElement("option");
       opt.value = key;
       opt.textContent = key.replace(/_/g, " ").toUpperCase();
