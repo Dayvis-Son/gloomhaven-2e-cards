@@ -5,11 +5,13 @@ const contentTitleEl = document.getElementById("content-title");
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
 const actionListEl = document.getElementById("action-list");
+const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
 
 let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
+let currentAction = null;
 
 fetch("data/enhancements.json")
   .then(r => r.json())
@@ -46,41 +48,53 @@ function showCardsForClass(cls) {
 
 function showCard(card) {
   currentCard = card;
-  cardDetailEl.style.display = "block";
-  cardNameEl.textContent = card.name;
-  actionListEl.innerHTML = "";
-  costOutputEl.textContent = "Select an action and enhancement.";
+  currentAction = null;
 
+  cardDetailEl.style.display = "block";
+  cardNameEl.textContent = `${card.name} (Level ${card.level})`;
+  actionListEl.innerHTML = "";
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.textContent = "Select an action.";
 
   card.actions.forEach(action => {
     const li = document.createElement("li");
-
     const btn = document.createElement("button");
+
     btn.textContent = `${action.type.toUpperCase()} (${action.multi ? "Multi" : "Single"})`;
 
-    btn.onclick = () => calculateCost(action);
+    btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
     actionListEl.appendChild(li);
   });
 }
 
-function calculateCost(action) {
-  const type = action.type;
+function selectAction(action) {
+  currentAction = action;
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.textContent = "Select an enhancement.";
 
-  if (!enhancementCosts[type]) {
-    costOutputEl.textContent = "This action cannot be enhanced.";
-    return;
-  }
+  Object.keys(enhancementCosts).forEach(key => {
+    // regra simples inicial: enhancement só vale se existir custo
+    if (enhancementCosts[key][action.multi ? "multi" : "single"]) {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = key.replace(/_/g, " ").toUpperCase();
+      enhancementSelectEl.appendChild(opt);
+    }
+  });
+}
 
-  const costData = enhancementCosts[type];
-  const mode = action.multi ? "multi" : "single";
+enhancementSelectEl.addEventListener("change", () => {
+  if (!currentAction || !enhancementSelectEl.value) return;
+
+  const enhancement = enhancementSelectEl.value;
   const level = currentCard.level;
+  const mode = currentAction.multi ? "multi" : "single";
 
-  const cost = costData[mode]?.[level];
+  const cost = enhancementCosts[enhancement]?.[mode]?.[level];
 
   costOutputEl.textContent = cost
     ? `Enhancement cost: ${cost} gold`
-    : "No cost data available.";
-}
-
+    : "This enhancement cannot be applied.";
+});
