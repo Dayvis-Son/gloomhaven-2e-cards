@@ -9,6 +9,7 @@ const costOutputEl = document.getElementById("cost-output");
 
 let allCards = [];
 let enhancementCosts = {};
+let currentCard = null;
 
 fetch("data/enhancements.json")
   .then(r => r.json())
@@ -44,6 +45,7 @@ function showCardsForClass(cls) {
 }
 
 function showCard(card) {
+  currentCard = card;
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = card.name;
   actionListEl.innerHTML = "";
@@ -64,7 +66,6 @@ function showCard(card) {
 }
 
 function calculateCost(action) {
-  const level = cardLevelEl.value;
   const type = action.type;
 
   if (!enhancementCosts[type]) {
@@ -74,6 +75,7 @@ function calculateCost(action) {
 
   const costData = enhancementCosts[type];
   const mode = action.multi ? "multi" : "single";
+  const level = currentCard.level;
 
   const cost = costData[mode]?.[level];
 
@@ -81,3 +83,4 @@ function calculateCost(action) {
     ? `Enhancement cost: ${cost} gold`
     : "No cost data available.";
 }
+
