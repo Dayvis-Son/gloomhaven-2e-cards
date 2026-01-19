@@ -3,18 +3,29 @@
     "id": "brute_trample",
     "class": "brute",
     "name": "Trample",
-    "level": 1
+    "level": 1,
+    "actions": [
+      { "type": "move", "multi": false },
+      { "type": "attack", "multi": true }
+    ]
   },
   {
     "id": "brute_eye_for_an_eye",
     "class": "brute",
     "name": "Eye for an Eye",
-    "level": 1
+    "level": 1,
+    "actions": [
+      { "type": "attack", "multi": false },
+      { "type": "retaliate", "multi": false }
+    ]
   },
   {
     "id": "brute_skewer",
     "class": "brute",
     "name": "Skewer",
-    "level": 1
+    "level": 1,
+    "actions": [
+      { "type": "attack", "multi": true }
+    ]
   }
 ]
