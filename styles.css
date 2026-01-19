@@ -26,3 +26,39 @@ body {
   padding: 16px;
   max-width: 600px;
 }
+.layout {
+  display: flex;
+  height: calc(100vh - 50px);
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #181818;
+  border-right: 1px solid #333;
+  padding: 12px;
+}
+
+.sidebar h2 {
+  font-size: 16px;
+  margin-top: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.sidebar li:hover {
+  background-color: #333;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
