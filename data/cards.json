@@ -5,27 +5,72 @@
     "name": "Trample",
     "level": 1,
     "actions": [
-      { "type": "move", "multi": false },
-      { "type": "attack", "multi": true }
+      {
+        "type": "move",
+        "value": 4,
+        "enhanceable": true
+      },
+      {
+        "type": "attack",
+        "value": 3,
+        "multi": true,
+        "enhanceable": true
+      }
+    ]
+  },
+  {
+    "id": "brute_leaping_cleave",
+    "class": "brute",
+    "name": "Leaping Cleave",
+    "level": 1,
+    "actions": [
+      {
+        "type": "move",
+        "value": 3,
+        "enhanceable": true
+      },
+      {
+        "type": "attack",
+        "value": 3,
+        "multi": true,
+        "enhanceable": true
+      }
+    ]
+  },
+  {
+    "id": "brute_shield_bash",
+    "class": "brute",
+    "name": "Shield Bash",
+    "level": 1,
+    "actions": [
+      {
+        "type": "shield",
+        "value": 1,
+        "enhanceable": true
+      },
+      {
+        "type": "attack",
+        "value": 2,
+        "enhanceable": true
+      }
     ]
   },
   {
     "id": "brute_eye_for_an_eye",
     "class": "brute",
     "name": "Eye for an Eye",
-    "level": 1,
+    "level": "X",
     "actions": [
-      { "type": "attack", "multi": false },
-      { "type": "retaliate", "multi": false }
-    ]
-  },
-  {
-    "id": "brute_skewer",
-    "class": "brute",
-    "name": "Skewer",
-    "level": 1,
-    "actions": [
-      { "type": "attack", "multi": true }
+      {
+        "type": "retaliate",
+        "value": 2,
+        "enhanceable": true
+      },
+      {
+        "type": "attack",
+        "value": 3,
+        "enhanceable": true
+      }
     ]
   }
 ]
