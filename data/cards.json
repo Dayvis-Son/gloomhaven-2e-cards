@@ -1,0 +1,20 @@
+[
+  {
+    "id": "brute_trample",
+    "class": "brute",
+    "name": "Trample",
+    "level": 1
+  },
+  {
+    "id": "brute_eye_for_an_eye",
+    "class": "brute",
+    "name": "Eye for an Eye",
+    "level": 1
+  },
+  {
+    "id": "brute_skewer",
+    "class": "brute",
+    "name": "Skewer",
+    "level": 1
+  }
+]
