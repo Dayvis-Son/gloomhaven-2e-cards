@@ -1,0 +1,43 @@
+{
+  "attack": [
+    "attack",
+    "range",
+    "target",
+    "pierce",
+    "wound",
+    "poison",
+    "muddle",
+    "immobilize",
+    "curse",
+    "push",
+    "pull"
+  ],
+  "move": [
+    "move",
+    "jump"
+  ],
+  "heal": [
+    "heal",
+    "bless",
+    "strengthen"
+  ],
+  "shield": [
+    "shield"
+  ],
+  "retaliate": [
+    "retaliate"
+  ],
+  "summon": [
+    "summon_hp",
+    "summon_attack",
+    "summon_move",
+    "summon_range"
+  ],
+  "elements": [
+    "elements",
+    "wild_elements"
+  ],
+  "area": [
+    "area_hex"
+  ]
+}
