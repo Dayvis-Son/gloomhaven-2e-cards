@@ -5,7 +5,6 @@ const contentTitleEl = document.getElementById("content-title");
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
 const actionListEl = document.getElementById("action-list");
-const cardLevelEl = document.getElementById("card-level");
 const costOutputEl = document.getElementById("cost-output");
 
 let allCards = [];
@@ -50,13 +49,6 @@ function showCard(card) {
   actionListEl.innerHTML = "";
   costOutputEl.textContent = "Select an action and enhancement.";
 
-  cardLevelEl.innerHTML = "";
-  for (let i = 1; i <= 9; i++) {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = `Level ${i}`;
-    cardLevelEl.appendChild(opt);
-  }
 
   card.actions.forEach(action => {
     const li = document.createElement("li");
