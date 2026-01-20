@@ -4,7 +4,9 @@ const contentTitleEl = document.getElementById("content-title");
 
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
-const actionListEl = document.getElementById("action-list");
+const topActionsEl = document.getElementById("top-actions");
+const bottomActionsEl = document.getElementById("bottom-actions");
+
 const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
 
