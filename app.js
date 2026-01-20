@@ -56,17 +56,29 @@ function showCard(card) {
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an action.";
 
-  card.actions.forEach(action => {
-    const li = document.createElement("li");
-    const btn = document.createElement("button");
+  const addSection = (label, actions) => {
+    const title = document.createElement("h4");
+    title.textContent = label;
+    actionListEl.appendChild(title);
 
-    btn.textContent = `${action.type.toUpperCase()} (${action.multi ? "Multi" : "Single"})`;
-    btn.onclick = () => selectAction(action);
+    actions.forEach(action => {
+      if (!action.enhanceable) return;
 
-    li.appendChild(btn);
-    actionListEl.appendChild(li);
-  });
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+
+      btn.textContent = `${action.type.toUpperCase()} (${action.multi ? "Multi" : "Single"})`;
+      btn.onclick = () => selectAction(action);
+
+      li.appendChild(btn);
+      actionListEl.appendChild(li);
+    });
+  };
+
+  addSection("TOP", card.top);
+  addSection("BOTTOM", card.bottom);
 }
+
 
 function selectAction(action) {
   currentAction = action;
