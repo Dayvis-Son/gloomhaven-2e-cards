@@ -102,15 +102,30 @@ function selectAction(action) {
 
 
 enhancementSelectEl.addEventListener("change", () => {
-  if (!currentAction || !enhancementSelectEl.value) return;
+  const enh = enhancementSelectEl.value;
 
-  const enhancement = enhancementSelectEl.value;
-  const level = currentCard.level;
-  const mode = currentAction.multi ? "multi" : "single";
+  if (!enh || !currentAction) {
+    costOutputEl.textContent = "";
+    elementChoiceEl.style.display = "none";
+    return;
+  }
 
-  const cost = enhancementCosts[enhancement]?.[mode]?.[level];
+  const baseCost = enhancementCosts[enh];
+  if (baseCost == null) {
+    costOutputEl.textContent = "No cost data.";
+    elementChoiceEl.style.display = "none";
+    return;
+  }
 
-  costOutputEl.textContent = cost
-    ? `Enhancement cost: ${cost} gold`
-    : "This enhancement cannot be applied.";
+  // Mostrar escolha de elemento apenas para Wild Element
+  if (enh === "wild_elements") {
+    elementChoiceEl.style.display = "block";
+  } else {
+    elementChoiceEl.style.display = "none";
+  }
+
+  const multiplier = currentAction.multi ? 2 : 1;
+  const totalCost = baseCost * multiplier;
+
+  costOutputEl.textContent = `Cost: ${totalCost}g`;
 });
