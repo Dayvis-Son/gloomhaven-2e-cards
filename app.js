@@ -85,23 +85,21 @@ function showCard(card) {
 
 function selectAction(action) {
   currentAction = action;
+
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an enhancement.";
+  elementChoiceEl.style.display = "none";
 
   const allowed = enhancementRules[action.type] || [];
 
-  allowed.forEach(key => {
-    const costData = enhancementCosts[key];
-    const mode = action.multi ? "multi" : "single";
-
-    if (costData && costData[mode]) {
-      const opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = key.replace(/_/g, " ").toUpperCase();
-      enhancementSelectEl.appendChild(opt);
-    }
+  allowed.forEach(enh => {
+    const opt = document.createElement("option");
+    opt.value = enh;
+    opt.textContent = enh.replace("_", " ").toUpperCase();
+    enhancementSelectEl.appendChild(opt);
   });
 }
+
 
 enhancementSelectEl.addEventListener("change", () => {
   if (!currentAction || !enhancementSelectEl.value) return;
