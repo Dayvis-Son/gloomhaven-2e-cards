@@ -106,3 +106,27 @@ label {
   display: block;
   margin: 10px 0;
 }
+
+.card-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.card-half {
+  border: 1px solid #ccc;
+  padding: 8px;
+  width: 100%;
+}
+
+.card-half.top {
+  background: #f8f8f8;
+}
+
+.card-half.bottom {
+  background: #ffffff;
+}
+
+.card-half h3 {
+  margin-top: 0;
+  text-align: center;
+}
