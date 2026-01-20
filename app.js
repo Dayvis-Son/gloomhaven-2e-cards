@@ -1,6 +1,8 @@
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
 const contentTitleEl = document.getElementById("content-title");
+const elementChoiceEl = document.getElementById("element-choice");
+const elementSelectEl = document.getElementById("element-select");
 
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
