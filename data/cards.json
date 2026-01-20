@@ -72,3 +72,56 @@
     ]
   }
 ]
+,
+{
+  "id": "brute_grab_and_go",
+  "class": "brute",
+  "name": "Grab and Go",
+  "level": 4,
+  "top": [
+    {
+      "type": "attack",
+      "value": 3,
+      "enhanceable": true
+    },
+    {
+      "type": "pull",
+      "value": 2,
+      "enhanceable": true
+    }
+  ],
+  "bottom": [
+    {
+      "type": "move",
+      "value": 4,
+      "enhanceable": true
+    }
+  ]
+},
+{
+  "id": "brute_unstoppable_charge",
+  "class": "brute",
+  "name": "Unstoppable Charge",
+  "level": 6,
+  "top": [
+    {
+      "type": "move",
+      "value": 4,
+      "enhanceable": true
+    },
+    {
+      "type": "attack",
+      "value": 4,
+      "multi": true,
+      "enhanceable": true,
+      "loss": true
+    }
+  ],
+  "bottom": [
+    {
+      "type": "shield",
+      "value": 2,
+      "enhanceable": true
+    }
+  ]
+}
