@@ -1,8 +1,6 @@
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
 const contentTitleEl = document.getElementById("content-title");
-const elementChoiceEl = document.getElementById("element-choice");
-const elementSelectEl = document.getElementById("element-select");
 
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
@@ -11,6 +9,9 @@ const bottomActionsEl = document.getElementById("bottom-actions");
 
 const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
+
+const elementChoiceEl = document.getElementById("element-choice");
+const elementSelectEl = document.getElementById("element-select");
 
 let allCards = [];
 let enhancementCosts = {};
@@ -41,7 +42,8 @@ function showCardsForClass(cls) {
   cardListEl.innerHTML = "";
   cardDetailEl.style.display = "none";
 
-  allCards.filter(c => c.class === cls.id)
+  allCards
+    .filter(c => c.class === cls.id)
     .forEach(card => {
       const li = document.createElement("li");
       li.textContent = `${card.name} (Level ${card.level})`;
@@ -62,26 +64,24 @@ function showCard(card) {
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an action.";
 
-  const renderActions = (actions, container) => {
-    actions.forEach(action => {
-      if (!action.enhanceable) return;
-
-      const li = document.createElement("li");
-      const btn = document.createElement("button");
-
-      btn.textContent = `${action.type.toUpperCase()} (${action.multi ? "Multi" : "Single"})`;
-      btn.onclick = () => selectAction(action);
-
-      li.appendChild(btn);
-      container.appendChild(li);
-    });
-  };
-
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
 }
 
+function renderActions(actions, container) {
+  actions.forEach(action => {
+    if (!action.enhanceable) return;
 
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+
+    btn.textContent = `${action.type.toUpperCase()} ${action.value} (${action.multi ? "Multi" : "Single"})`;
+    btn.onclick = () => selectAction(action);
+
+    li.appendChild(btn);
+    container.appendChild(li);
+  });
+}
 
 function selectAction(action) {
   currentAction = action;
@@ -100,7 +100,6 @@ function selectAction(action) {
   });
 }
 
-
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
 
@@ -110,24 +109,34 @@ enhancementSelectEl.addEventListener("change", () => {
     return;
   }
 
-  const baseCost = enhancementCosts[enh];
-  if (baseCost == null) {
-    costOutputEl.textContent = "No cost data.";
-    elementChoiceEl.style.display = "none";
+  // Elementos (normal e wild)
+  if (enh === "elements" || enh === "wild_elements") {
+    elementChoiceEl.style.display = "block";
+
+    const cost = enh === "wild_elements" ? 150 : 100;
+    costOutputEl.textContent = `Cost: ${cost}g`;
     return;
   }
 
-  // Mostrar escolha de elemento apenas para Wild Element
-  if (enh === "wild_elements") {
-    elementChoiceEl.style.display = "block";
-  } else {
-    elementChoiceEl.style.display = "none";
+  elementChoiceEl.style.display = "none";
+
+  const typeCosts = enhancementCosts[enh];
+  if (!typeCosts) {
+    costOutputEl.textContent = "No cost data.";
+    return;
   }
 
-  const multiplier = currentAction.multi ? 2 : 1;
-  const totalCost = baseCost * multiplier;
+  const mode = currentAction.multi ? "multi" : "single";
+  const value = currentAction.value;
 
-  costOutputEl.textContent = `Cost: ${totalCost}g`;
+  const cost = typeCosts[mode]?.[value];
+
+  if (!cost) {
+    costOutputEl.textContent = "Invalid cost.";
+    return;
+  }
+
+  costOutputEl.textContent = `Cost: ${cost}g`;
 });
 
 elementSelectEl.addEventListener("change", () => {
