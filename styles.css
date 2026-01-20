@@ -1,9 +1,17 @@
+/* ===== GLOBAL ===== */
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   background-color: #1e1e1e;
   color: #e0e0e0;
 }
+
+h1, h2, h3 {
+  font-weight: normal;
+}
+
+/* ===== TOP BAR ===== */
 
 .top-bar {
   background-color: #111;
@@ -16,20 +24,14 @@ body {
   font-size: 20px;
 }
 
-.container {
-  padding: 20px;
-}
+/* ===== LAYOUT ===== */
 
-.panel {
-  background-color: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  padding: 16px;
-  max-width: 600px;
-}
 .layout {
   display: flex;
   height: calc(100vh - 50px);
 }
+
+/* ===== SIDEBAR ===== */
 
 .sidebar {
   width: 240px;
@@ -46,6 +48,7 @@ body {
 .sidebar ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
@@ -58,14 +61,18 @@ body {
   background-color: #333;
 }
 
+/* ===== CONTENT ===== */
+
 .content {
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
 }
 
 #card-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 #card-list li {
@@ -78,6 +85,8 @@ body {
   background-color: #2f2f2f;
 }
 
+/* ===== CARD DETAIL ===== */
+
 #card-detail {
   margin-top: 20px;
   padding: 12px;
@@ -85,27 +94,7 @@ body {
   background-color: #252525;
 }
 
-#action-list {
-  list-style: none;
-  padding: 0;
-}
-
-#action-list li {
-  margin-bottom: 8px;
-}
-
-select {
-  background-color: #1e1e1e;
-  color: #e0e0e0;
-  border: 1px solid #444;
-  padding: 4px;
-  margin-top: 6px;
-}
-
-label {
-  display: block;
-  margin: 10px 0;
-}
+/* ===== TOP / BOTTOM ACTIONS ===== */
 
 .card-actions {
   display: flex;
@@ -113,20 +102,86 @@ label {
 }
 
 .card-half {
-  border: 1px solid #ccc;
-  padding: 8px;
   width: 100%;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
 }
 
 .card-half.top {
-  background: #f8f8f8;
+  background-color: #2d2d2d;
 }
 
 .card-half.bottom {
-  background: #ffffff;
+  background-color: #242424;
 }
 
 .card-half h3 {
-  margin-top: 0;
+  margin: 0 0 8px 0;
   text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 4px;
+}
+
+#top-actions,
+#bottom-actions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#top-actions li,
+#bottom-actions li {
+  margin-bottom: 8px;
+}
+
+/* ===== BUTTONS ===== */
+
+button {
+  width: 100%;
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+button:hover {
+  background-color: #444;
+}
+
+/* ===== ENHANCEMENT PANEL ===== */
+
+.enhancement-panel {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #444;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+select {
+  width: 100%;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  padding: 6px;
+  margin-top: 4px;
+}
+
+#element-choice {
+  margin-top: 8px;
+}
+
+/* ===== COST OUTPUT ===== */
+
+#cost-output {
+  margin-top: 10px;
+  font-weight: bold;
 }
