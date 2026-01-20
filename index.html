@@ -23,12 +23,27 @@
       <ul id="card-list"></ul>
 
       <!-- 👇 ESTE BLOCO É O MAIS IMPORTANTE -->
-      <div id="card-detail" style="display:none;">
-        <h3 id="card-name"></h3>
+     <div id="card-detail" style="display:none">
+  <h2 id="card-name"></h2>
 
+  <div class="card-actions">
+    <div class="card-half top">
+      <h3>TOP</h3>
+      <ul id="action-list"></ul>
+    </div>
+  </div>
 
-        <h4>Actions</h4>
-        <ul id="action-list"></ul>
+  <div class="enhancement-panel">
+    <label>
+      Enhancement:
+      <select id="enhancement-select">
+        <option value="">Select enhancement</option>
+      </select>
+    </label>
+
+    <div id="cost-output"></div>
+  </div>
+</div>
 
         <label>
   Enhancement:
