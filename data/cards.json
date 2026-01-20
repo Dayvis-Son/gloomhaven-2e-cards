@@ -4,18 +4,11 @@
     "class": "brute",
     "name": "Trample",
     "level": 1,
-    "actions": [
-      {
-        "type": "move",
-        "value": 4,
-        "enhanceable": true
-      },
-      {
-        "type": "attack",
-        "value": 3,
-        "multi": true,
-        "enhanceable": true
-      }
+    "top": [
+      { "type": "attack", "value": 3, "multi": true, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "move", "value": 4, "enhanceable": true }
     ]
   },
   {
@@ -23,18 +16,11 @@
     "class": "brute",
     "name": "Leaping Cleave",
     "level": 1,
-    "actions": [
-      {
-        "type": "move",
-        "value": 3,
-        "enhanceable": true
-      },
-      {
-        "type": "attack",
-        "value": 3,
-        "multi": true,
-        "enhanceable": true
-      }
+    "top": [
+      { "type": "attack", "value": 3, "multi": true, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "move", "value": 3, "enhanceable": true }
     ]
   },
   {
@@ -42,17 +28,11 @@
     "class": "brute",
     "name": "Shield Bash",
     "level": 1,
-    "actions": [
-      {
-        "type": "shield",
-        "value": 1,
-        "enhanceable": true
-      },
-      {
-        "type": "attack",
-        "value": 2,
-        "enhanceable": true
-      }
+    "top": [
+      { "type": "attack", "value": 2, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "shield", "value": 1, "enhanceable": true }
     ]
   },
   {
@@ -60,17 +40,35 @@
     "class": "brute",
     "name": "Eye for an Eye",
     "level": "X",
-    "actions": [
-      {
-        "type": "retaliate",
-        "value": 2,
-        "enhanceable": true
-      },
-      {
-        "type": "attack",
-        "value": 3,
-        "enhanceable": true
-      }
+    "top": [
+      { "type": "retaliate", "value": 2, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "attack", "value": 3, "enhanceable": true }
+    ]
+  },
+  {
+    "id": "brute_provoking_roar",
+    "class": "brute",
+    "name": "Provoking Roar",
+    "level": 1,
+    "top": [
+      { "type": "attack", "value": 2, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "heal", "value": 2, "enhanceable": true }
+    ]
+  },
+  {
+    "id": "brute_skewer",
+    "class": "brute",
+    "name": "Skewer",
+    "level": 2,
+    "top": [
+      { "type": "attack", "value": 4, "multi": true, "enhanceable": true }
+    ],
+    "bottom": [
+      { "type": "move", "value": 2, "enhanceable": true }
     ]
   }
 ]
