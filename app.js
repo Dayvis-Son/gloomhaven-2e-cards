@@ -54,15 +54,13 @@ function showCard(card) {
 
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = `${card.name} (Level ${card.level})`;
-  actionListEl.innerHTML = "";
+
+  topActionsEl.innerHTML = "";
+  bottomActionsEl.innerHTML = "";
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an action.";
 
-  const addSection = (label, actions) => {
-    const title = document.createElement("h4");
-    title.textContent = label;
-    actionListEl.appendChild(title);
-
+  const renderActions = (actions, container) => {
     actions.forEach(action => {
       if (!action.enhanceable) return;
 
@@ -73,13 +71,14 @@ function showCard(card) {
       btn.onclick = () => selectAction(action);
 
       li.appendChild(btn);
-      actionListEl.appendChild(li);
+      container.appendChild(li);
     });
   };
 
-  addSection("TOP", card.top);
-  addSection("BOTTOM", card.bottom);
+  renderActions(card.top, topActionsEl);
+  renderActions(card.bottom, bottomActionsEl);
 }
+
 
 
 function selectAction(action) {
