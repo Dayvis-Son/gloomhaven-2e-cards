@@ -129,3 +129,9 @@ enhancementSelectEl.addEventListener("change", () => {
 
   costOutputEl.textContent = `Cost: ${totalCost}g`;
 });
+
+elementSelectEl.addEventListener("change", () => {
+  if (enhancementSelectEl.value === "wild_elements") {
+    costOutputEl.textContent += ` — Element: ${elementSelectEl.value.toUpperCase()}`;
+  }
+});
