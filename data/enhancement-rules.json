@@ -1,17 +1,18 @@
 {
-  "attack": [
-    "attack",
-    "range",
-    "target",
-    "pierce",
-    "wound",
-    "poison",
-    "muddle",
-    "immobilize",
-    "curse",
-    "push",
-    "pull"
-  ],
+"attack": [
+  "attack",
+  "range",
+  "target",
+  "pierce",
+  "wound",
+  "poison",
+  "muddle",
+  "immobilize",
+  "curse",
+  "push",
+  "pull"
+]
+
   "move": [
     "move",
     "jump"
