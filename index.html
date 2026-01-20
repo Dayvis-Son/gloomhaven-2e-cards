@@ -22,62 +22,48 @@
 
       <ul id="card-list"></ul>
 
-      <!-- 👇 ESTE BLOCO É O MAIS IMPORTANTE -->
-     <div id="card-detail" style="display:none">
-  <h2 id="card-name"></h2>
+      <!-- CARD DETAIL -->
+      <div id="card-detail" style="display:none">
+        <h2 id="card-name"></h2>
 
- <div class="card-actions">
-  <div class="card-half top">
-    <h3>TOP</h3>
-    <ul id="top-actions"></ul>
-  </div>
+        <div class="card-actions">
+          <div class="card-half top">
+            <h3>TOP</h3>
+            <ul id="top-actions"></ul>
+          </div>
 
-  <div class="card-half bottom">
-    <h3>BOTTOM</h3>
-    <ul id="bottom-actions"></ul>
-  </div>
-</div>
+          <div class="card-half bottom">
+            <h3>BOTTOM</h3>
+            <ul id="bottom-actions"></ul>
+          </div>
+        </div>
 
+        <div class="enhancement-panel">
+          <label>
+            Enhancement:
+            <select id="enhancement-select">
+              <option value="">Select enhancement</option>
+            </select>
+          </label>
 
- <div class="enhancement-panel">
-  <label>
-    Enhancement:
-    <select id="enhancement-select">
-      <option value="">Select enhancement</option>
-    </select>
-  </label>
+          <div id="element-choice" style="display:none">
+            <label>
+              Choose Element:
+              <select id="element-select">
+                <option value="fire">Fire</option>
+                <option value="ice">Ice</option>
+                <option value="air">Air</option>
+                <option value="earth">Earth</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+          </div>
 
-  <div id="element-choice" style="display:none">
-    <label>
-      Choose Element:
-      <select id="element-select">
-        <option value="fire">Fire</option>
-        <option value="ice">Ice</option>
-        <option value="air">Air</option>
-        <option value="earth">Earth</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </label>
-  </div>
-
-  <div id="cost-output"></div>
-</div>
-
-
-        <label>
-  Enhancement:
-  <select id="enhancement-select">
-    <option value="">Select enhancement</option>
-  </select>
-</label>
-
-        
-        <h4>Enhancement Cost</h4>
-      <p id="cost-output">Select an enhancement.</p>
-
+          <div id="cost-output">Select an enhancement.</div>
+        </div>
       </div>
-      <!-- 👆 ATÉ AQUI -->
+      <!-- END CARD DETAIL -->
 
     </section>
   </main>
