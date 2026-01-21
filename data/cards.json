@@ -23,18 +23,18 @@
       { "type": "move", "value": 3, "enhanceable": true }
     ]
   },
-  {
-    "id": "brute_shield_bash",
-    "class": "brute",
-    "name": "Shield Bash",
-    "level": 1,
-    "top": [
-      { "type": "attack", "value": 2, "enhanceable": true }
-    ],
-    "bottom": [
-      { "type": "shield", "value": 1, "enhanceable": true }
-    ]
-  },
+{
+  "id": "brute_shield_bash",
+  "class": "brute",
+  "name": "Shield Bash",
+  "level": 1,
+  "top": [
+    { "type": "attack", "value": 2, "enhanceable": true, "loss": true }
+  ],
+  "bottom": [
+    { "type": "move", "value": 2, "enhanceable": true }
+  ]
+},
   {
     "id": "brute_eye_for_an_eye",
     "class": "brute",
