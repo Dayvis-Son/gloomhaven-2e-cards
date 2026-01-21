@@ -37,13 +37,15 @@ Promise.all([
   });
 });
 
+/* ===== CLASSES ===== */
+
 function showCardsForClass(cls) {
   contentTitleEl.textContent = `${cls.name} Cards`;
   cardListEl.innerHTML = "";
   cardDetailEl.style.display = "none";
 
   allCards
-    .filter(c => c.class === cls.id)
+    .filter(card => card.class === cls.id)
     .forEach(card => {
       const li = document.createElement("li");
       li.textContent = `${card.name} (Level ${card.level})`;
@@ -51,6 +53,8 @@ function showCardsForClass(cls) {
       cardListEl.appendChild(li);
     });
 }
+
+/* ===== CARD ===== */
 
 function showCard(card) {
   currentCard = card;
@@ -75,13 +79,19 @@ function renderActions(actions, container) {
     const li = document.createElement("li");
     const btn = document.createElement("button");
 
-    btn.textContent = `${action.type.toUpperCase()} ${action.value} (${action.multi ? "Multi" : "Single"})`;
+    let label = action.type.toUpperCase();
+    if (action.multi) label += " (MULTI)";
+    if (action.loss) label += " 🔥";
+
+    btn.textContent = label;
     btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
     container.appendChild(li);
   });
 }
+
+/* ===== ACTION / ENHANCEMENT ===== */
 
 function selectAction(action) {
   currentAction = action;
@@ -95,10 +105,12 @@ function selectAction(action) {
   allowed.forEach(enh => {
     const opt = document.createElement("option");
     opt.value = enh;
-    opt.textContent = enh.replace("_", " ").toUpperCase();
+    opt.textContent = enh.replace(/_/g, " ").toUpperCase();
     enhancementSelectEl.appendChild(opt);
   });
 }
+
+/* ===== COST CALCULATION ===== */
 
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
@@ -109,31 +121,31 @@ enhancementSelectEl.addEventListener("change", () => {
     return;
   }
 
-  // Elementos (normal e wild)
-  if (enh === "elements" || enh === "wild_elements") {
-    elementChoiceEl.style.display = "block";
-
-    const cost = enh === "wild_elements" ? 150 : 100;
-    costOutputEl.textContent = `Cost: ${cost}g`;
-    return;
-  }
-
-  elementChoiceEl.style.display = "none";
-
-  const typeCosts = enhancementCosts[enh];
-  if (!typeCosts) {
+  const costData = enhancementCosts[enh];
+  if (!costData) {
     costOutputEl.textContent = "No cost data.";
+    elementChoiceEl.style.display = "none";
     return;
   }
 
-  const mode = currentAction.multi ? "multi" : "single";
-  const value = currentAction.value;
+  // Mostrar escolha de elemento apenas para Wild Element
+  if (enh === "wild_elements") {
+    elementChoiceEl.style.display = "block";
+  } else {
+    elementChoiceEl.style.display = "none";
+  }
 
-  const cost = typeCosts[mode]?.[value];
+  let cost = 0;
 
-  if (!cost) {
-    costOutputEl.textContent = "Invalid cost.";
-    return;
+  if (currentAction.multi && costData.multi) {
+    cost = costData.multi["1"];
+  } else if (costData.single) {
+    cost = costData.single["1"];
+  }
+
+  // LOSS → metade do custo (GH2 rule)
+  if (currentAction.loss) {
+    cost = Math.floor(cost / 2);
   }
 
   costOutputEl.textContent = `Cost: ${cost}g`;
