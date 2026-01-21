@@ -104,8 +104,8 @@ function updateEnhancementOptions() {
   const freeSlots = [...currentAction.slots];
 
   usedSlots.forEach(slot => {
-    const index = freeSlots.indexOf(slot);
-    if (index !== -1) freeSlots.splice(index, 1);
+    const i = freeSlots.indexOf(slot);
+    if (i !== -1) freeSlots.splice(i, 1);
   });
 
   if (freeSlots.length === 0) {
@@ -136,39 +136,46 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh || !currentAction) return;
 
-  const slotType = getSlotTypeForEnhancement(enh);
-
-  const freeSlots = [...currentAction.slots];
-  appliedEnhancements.forEach(e => {
-    const i = freeSlots.indexOf(e.slot);
-    if (i !== -1) freeSlots.splice(i, 1);
-  });
-
-  if (!freeSlots.includes(slotType)) {
-    costOutputEl.textContent = "No compatible slots available.";
-    return;
-  }
-
-  appliedEnhancements.push({ enhancement: enh, slot: slotType });
-
-  const base = enhancementCosts[enh];
-  if (base == null) {
+  const baseCost = enhancementCosts[enh];
+  if (baseCost == null) {
     costOutputEl.textContent = "No cost data.";
     return;
   }
 
-  let cost = base;
+  let base = baseCost;
 
+  // MULTI (apenas se não for Loss)
   if (currentAction.multi && !currentAction.loss) {
-    cost *= 2;
+    base *= 2;
   }
 
+  // LOSS divide apenas o base
   if (currentAction.loss) {
-    cost /= 2;
+    base /= 2;
   }
 
-  costOutputEl.textContent =
-    `Applied: ${appliedEnhancements.length} | Last cost: ${cost}g`;
+  // LEVEL (somente a partir do level 2)
+  let levelCost = 0;
+  if (typeof currentCard.level === "number" && currentCard.level >= 2) {
+    levelCost = (currentCard.level - 1) * 25;
+  }
+
+  // EXISTING ENHANCEMENTS
+  const existingCost = appliedEnhancements.length * 75;
+
+  const total = base + levelCost + existingCost;
+
+  appliedEnhancements.push({
+    enhancement: enh,
+    slot: getSlotTypeForEnhancement(enh)
+  });
+
+  costOutputEl.innerHTML = `
+    Base: ${base}g<br>
+    Level: +${levelCost}g<br>
+    Existing: +${existingCost}g<br>
+    <strong>Total: ${total}g</strong>
+  `;
 
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
@@ -181,7 +188,7 @@ enhancementSelectEl.addEventListener("change", () => {
 
 elementSelectEl.addEventListener("change", () => {
   if (enhancementSelectEl.value === "wild_elements") {
-    costOutputEl.textContent +=
-      ` — Element: ${elementSelectEl.value.toUpperCase()}`;
+    costOutputEl.innerHTML +=
+      `<br>Element: ${elementSelectEl.value.toUpperCase()}`;
   }
 });
