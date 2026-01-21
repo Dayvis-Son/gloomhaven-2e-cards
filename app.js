@@ -90,11 +90,26 @@ function renderActions(actions, container) {
       slots.appendChild(s);
     });
 
+    const applied = document.createElement("div");
+    applied.className = "applied-enhancements";
+
+    if (used.length === 0) {
+      applied.textContent = "No enhancements applied";
+    } else {
+      used.forEach(e => {
+        const tag = document.createElement("span");
+        tag.textContent = e.replace("_", " ").toUpperCase();
+        applied.appendChild(tag);
+      });
+    }
+
     row.appendChild(btn);
     row.appendChild(slots);
+    row.appendChild(applied);
     container.appendChild(row);
   });
 }
+
 
 function selectAction(action) {
   currentAction = action;
