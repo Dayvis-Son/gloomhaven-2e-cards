@@ -33,10 +33,10 @@
     "single": { "1": 30 }
   },
   "pull": {
-    "single": { "1": 30 }
+    "single": { "1": 20 }
   },
   "jump": {
-    "single": { "1": 20 }
+    "single": { "1": 60 }
   },
   "elements": {
     "single": { "1": 100 }
