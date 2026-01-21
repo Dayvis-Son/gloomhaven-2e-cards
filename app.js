@@ -4,6 +4,14 @@ import {
   SLOT_ICONS
 } from "./data/enhancement-logic.js";
 
+const SLOT_SYMBOLS = {
+  square: "⬜",
+  circle: "⚪",
+  triangle: "🔺",
+  triangle_plus: "🔺➕",
+  hex: "⬢"
+};
+
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
 const contentTitleEl = document.getElementById("content-title");
