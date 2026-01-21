@@ -41,14 +41,12 @@ function showCardsForClass(cls) {
   cardListEl.innerHTML = "";
   cardDetailEl.style.display = "none";
 
-  allCards
-    .filter(c => c.class === cls.id)
-    .forEach(card => {
-      const li = document.createElement("li");
-      li.textContent = `${card.name} (Level ${card.level})`;
-      li.onclick = () => showCard(card);
-      cardListEl.appendChild(li);
-    });
+  allCards.filter(c => c.class === cls.id).forEach(card => {
+    const li = document.createElement("li");
+    li.textContent = `${card.name} (Level ${card.level})`;
+    li.onclick = () => showCard(card);
+    cardListEl.appendChild(li);
+  });
 }
 
 function showCard(card) {
@@ -77,7 +75,6 @@ function renderActions(actions, container) {
 
     btn.textContent =
       `${action.type.toUpperCase()}` +
-      (action.hexes ? ` (${action.hexes} HEX)` : "") +
       (action.loss ? " [LOSS]" : "");
 
     btn.onclick = () => selectAction(action);
@@ -94,58 +91,44 @@ function selectAction(action) {
   costOutputEl.textContent = "Select an enhancement.";
   elementChoiceEl.style.display = "none";
 
-  const allowed = enhancementRules[action.type] || [];
+  const slots = action.slots || [];
 
-  allowed.forEach(enh => {
-    const opt = document.createElement("option");
-    opt.value = enh;
-    opt.textContent = enh.replace("_", " ").toUpperCase();
-    enhancementSelectEl.appendChild(opt);
+  Object.entries(enhancementRules).forEach(([enh, rule]) => {
+    if (slots.includes(rule.slot)) {
+      const opt = document.createElement("option");
+      opt.value = enh;
+      opt.textContent = enh.replace("_", " ").toUpperCase();
+      enhancementSelectEl.appendChild(opt);
+    }
   });
 }
 
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
-
-  if (!enh || !currentAction) {
-    costOutputEl.textContent = "";
-    elementChoiceEl.style.display = "none";
-    return;
-  }
+  if (!enh || !currentAction) return;
 
   let baseCost = 0;
 
-  // 🔹 AREA OF EFFECT HEX (regra especial)
   if (enh === "area_hex") {
     const hexCount = currentAction.hexes || 1;
     baseCost = Math.floor(200 / hexCount);
   } else {
     const costData = enhancementCosts[enh];
-    if (!costData) {
-      costOutputEl.textContent = "No cost data.";
-      return;
-    }
-
     baseCost = currentAction.multi
       ? costData.multi?.["1"]
       : costData.single?.["1"];
   }
 
-  // 🔹 LOSS → divide somente o valor base
   if (currentAction.loss) {
     baseCost = Math.floor(baseCost / 2);
   }
 
-  // 🔹 Acréscimo por nível (level > 1)
   let levelCost = 0;
   if (typeof currentCard.level === "number" && currentCard.level > 1) {
     levelCost = (currentCard.level - 1) * 25;
   }
 
-  // 🔹 Enhancements existentes (futuro)
-  let existingCost = 0;
-
-  const total = baseCost + levelCost + existingCost;
+  const total = baseCost + levelCost;
 
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
@@ -154,12 +137,5 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   costOutputEl.textContent =
-    `Base: ${baseCost}g | Level: ${levelCost}g | Existing: ${existingCost}g → Total: ${total}g`;
-});
-
-elementSelectEl.addEventListener("change", () => {
-  if (enhancementSelectEl.value === "wild_elements") {
-    costOutputEl.textContent +=
-      ` — Element: ${elementSelectEl.value.toUpperCase()}`;
-  }
+    `Base: ${baseCost}g | Level: ${levelCost}g → Total: ${total}g`;
 });
