@@ -192,3 +192,18 @@ enhancementSelectEl.addEventListener("change", () => {
 
   showCard(currentCard);
 });
+
+function removeEnhancement(action, index) {
+  const list = usedSlots.get(action);
+  if (!list) return;
+
+  list.splice(index, 1);
+
+  // reset UI
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.textContent = "";
+  currentAction = null;
+
+  // re-render card to refresh slots + list
+  showCard(currentCard);
+}
