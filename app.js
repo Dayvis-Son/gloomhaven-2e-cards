@@ -15,8 +15,10 @@ const elementSelectEl = document.getElementById("element-select");
 let allCards = [];
 let enhancementCosts = {};
 let enhancementRules = {};
+
 let currentCard = null;
 let currentAction = null;
+let appliedEnhancements = [];
 
 Promise.all([
   fetch("data/enhancements.json").then(r => r.json()),
@@ -41,17 +43,20 @@ function showCardsForClass(cls) {
   cardListEl.innerHTML = "";
   cardDetailEl.style.display = "none";
 
-  allCards.filter(c => c.class === cls.id).forEach(card => {
-    const li = document.createElement("li");
-    li.textContent = `${card.name} (Level ${card.level})`;
-    li.onclick = () => showCard(card);
-    cardListEl.appendChild(li);
-  });
+  allCards
+    .filter(c => c.class === cls.id)
+    .forEach(card => {
+      const li = document.createElement("li");
+      li.textContent = `${card.name} (Level ${card.level})`;
+      li.onclick = () => showCard(card);
+      cardListEl.appendChild(li);
+    });
 }
 
 function showCard(card) {
   currentCard = card;
   currentAction = null;
+  appliedEnhancements = [];
 
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = `${card.name} (Level ${card.level})`;
@@ -62,21 +67,18 @@ function showCard(card) {
   costOutputEl.textContent = "Select an action.";
   elementChoiceEl.style.display = "none";
 
-  renderActions(card.top, topActionsEl);
-  renderActions(card.bottom, bottomActionsEl);
+  renderActions(card.top, topActionsEl, "TOP");
+  renderActions(card.bottom, bottomActionsEl, "BOTTOM");
 }
 
-function renderActions(actions, container) {
+function renderActions(actions, container, label) {
   actions.forEach(action => {
-    if (!action.enhanceable) return;
+    if (!action.enhanceable || !action.slots || action.slots.length === 0) return;
 
     const li = document.createElement("li");
     const btn = document.createElement("button");
 
-    btn.textContent =
-      `${action.type.toUpperCase()}` +
-      (action.loss ? " [LOSS]" : "");
-
+    btn.textContent = `${label} — ${action.type.toUpperCase()} (${action.slots.length} slots)`;
     btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
@@ -86,15 +88,36 @@ function renderActions(actions, container) {
 
 function selectAction(action) {
   currentAction = action;
+  appliedEnhancements = [];
 
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an enhancement.";
   elementChoiceEl.style.display = "none";
 
-  const slots = action.slots || [];
+  updateEnhancementOptions();
+}
 
-  Object.entries(enhancementRules).forEach(([enh, rule]) => {
-    if (slots.includes(rule.slot)) {
+function updateEnhancementOptions() {
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+
+  const usedSlots = appliedEnhancements.map(e => e.slot);
+  const freeSlots = [...currentAction.slots];
+
+  usedSlots.forEach(slot => {
+    const index = freeSlots.indexOf(slot);
+    if (index !== -1) freeSlots.splice(index, 1);
+  });
+
+  if (freeSlots.length === 0) {
+    costOutputEl.textContent = "No enhancement slots available.";
+    return;
+  }
+
+  const allowed = enhancementRules[currentAction.type] || [];
+
+  allowed.forEach(enh => {
+    const slotType = getSlotTypeForEnhancement(enh);
+    if (freeSlots.includes(slotType)) {
       const opt = document.createElement("option");
       opt.value = enh;
       opt.textContent = enh.replace("_", " ").toUpperCase();
@@ -103,32 +126,49 @@ function selectAction(action) {
   });
 }
 
+function getSlotTypeForEnhancement(enh) {
+  if (enh === "area_hex") return "hex";
+  if (enh === "wild_elements" || enh === "elements") return "triangle";
+  return "circle";
+}
+
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh || !currentAction) return;
 
-  let baseCost = 0;
+  const slotType = getSlotTypeForEnhancement(enh);
 
-  if (enh === "area_hex") {
-    const hexCount = currentAction.hexes || 1;
-    baseCost = Math.floor(200 / hexCount);
-  } else {
-    const costData = enhancementCosts[enh];
-    baseCost = currentAction.multi
-      ? costData.multi?.["1"]
-      : costData.single?.["1"];
+  const freeSlots = [...currentAction.slots];
+  appliedEnhancements.forEach(e => {
+    const i = freeSlots.indexOf(e.slot);
+    if (i !== -1) freeSlots.splice(i, 1);
+  });
+
+  if (!freeSlots.includes(slotType)) {
+    costOutputEl.textContent = "No compatible slots available.";
+    return;
+  }
+
+  appliedEnhancements.push({ enhancement: enh, slot: slotType });
+
+  const base = enhancementCosts[enh];
+  if (base == null) {
+    costOutputEl.textContent = "No cost data.";
+    return;
+  }
+
+  let cost = base;
+
+  if (currentAction.multi && !currentAction.loss) {
+    cost *= 2;
   }
 
   if (currentAction.loss) {
-    baseCost = Math.floor(baseCost / 2);
+    cost /= 2;
   }
 
-  let levelCost = 0;
-  if (typeof currentCard.level === "number" && currentCard.level > 1) {
-    levelCost = (currentCard.level - 1) * 25;
-  }
-
-  const total = baseCost + levelCost;
+  costOutputEl.textContent =
+    `Applied: ${appliedEnhancements.length} | Last cost: ${cost}g`;
 
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
@@ -136,6 +176,12 @@ enhancementSelectEl.addEventListener("change", () => {
     elementChoiceEl.style.display = "none";
   }
 
-  costOutputEl.textContent =
-    `Base: ${baseCost}g | Level: ${levelCost}g → Total: ${total}g`;
+  updateEnhancementOptions();
+});
+
+elementSelectEl.addEventListener("change", () => {
+  if (enhancementSelectEl.value === "wild_elements") {
+    costOutputEl.textContent +=
+      ` — Element: ${elementSelectEl.value.toUpperCase()}`;
+  }
 });
