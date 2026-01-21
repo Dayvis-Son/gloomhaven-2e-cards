@@ -1,98 +1,175 @@
 [
   {
-  "id": "brute_trample",
-  "class": "brute",
-  "name": "Trample",
-  "level": 1,
-  "top": [
-    {
-      "type": "attack",
-      "value": 3,
-      "enhanceable": true
-    }
-  ],
-  "bottom": [
-    {
-      "type": "move",
-      "value": 4,
-      "enhanceable": true,
-      "loss": true
-    }
-  ]
-},
+    "id": "brute_trample",
+    "class": "brute",
+    "name": "Trample",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "value": 3,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "value": 4,
+        "enhanceable": true,
+        "loss": true,
+        "slots": ["circle"]
+      }
+    ]
+  },
+
   {
     "id": "brute_leaping_cleave",
     "class": "brute",
     "name": "Leaping Cleave",
     "level": 1,
     "top": [
-      { "type": "attack", "value": 3, "multi": true, "enhanceable": true }
+      {
+        "type": "attack",
+        "value": 3,
+        "multi": true,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ],
     "bottom": [
-      { "type": "move", "value": 3, "enhanceable": true }
+      {
+        "type": "move",
+        "value": 3,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   },
-{
-  "id": "brute_shield_bash",
-  "class": "brute",
-  "name": "Shield Bash",
-  "level": 1,
-  "top": [
-    { "type": "attack", "value": 2, "enhanceable": true, "loss": true }
-  ],
-  "bottom": [
-    { "type": "move", "value": 2, "enhanceable": true }
-  ]
-},
+
+  {
+    "id": "brute_shield_bash",
+    "class": "brute",
+    "name": "Shield Bash",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "value": 2,
+        "enhanceable": true,
+        "loss": true,
+        "slots": ["circle"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
+    ]
+  },
+
   {
     "id": "brute_eye_for_an_eye",
     "class": "brute",
     "name": "Eye for an Eye",
     "level": "X",
     "top": [
-      { "type": "retaliate", "value": 2, "enhanceable": true }
+      {
+        "type": "retaliate",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ],
     "bottom": [
-      { "type": "attack", "value": 3, "enhanceable": true }
+      {
+        "type": "attack",
+        "value": 3,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   },
+
   {
     "id": "brute_provoking_roar",
     "class": "brute",
     "name": "Provoking Roar",
     "level": 1,
     "top": [
-      { "type": "attack", "value": 2, "enhanceable": true }
+      {
+        "type": "attack",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ],
     "bottom": [
-      { "type": "heal", "value": 2, "enhanceable": true }
+      {
+        "type": "heal",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   },
+
   {
     "id": "brute_skewer",
     "class": "brute",
     "name": "Skewer",
     "level": 2,
     "top": [
-      { "type": "attack", "value": 4, "multi": true, "enhanceable": true }
+      {
+        "type": "attack",
+        "value": 4,
+        "multi": true,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ],
     "bottom": [
-      { "type": "move", "value": 2, "enhanceable": true }
+      {
+        "type": "move",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   },
+
   {
     "id": "brute_grab_and_go",
     "class": "brute",
     "name": "Grab and Go",
     "level": 4,
     "top": [
-      { "type": "attack", "value": 3, "enhanceable": true },
-      { "type": "pull", "value": 2, "enhanceable": true }
+      {
+        "type": "attack",
+        "value": 3,
+        "enhanceable": true,
+        "slots": ["circle"]
+      },
+      {
+        "type": "pull",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ],
     "bottom": [
-      { "type": "move", "value": 4, "enhanceable": true }
+      {
+        "type": "move",
+        "value": 4,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   },
+
   {
     "id": "brute_unstoppable_charge",
     "class": "brute",
@@ -102,18 +179,25 @@
       {
         "type": "move",
         "value": 4,
-        "enhanceable": true
+        "enhanceable": true,
+        "slots": ["circle"]
       },
       {
         "type": "attack",
         "value": 4,
         "multi": true,
         "enhanceable": true,
-        "loss": true
+        "loss": true,
+        "slots": ["circle"]
       }
     ],
     "bottom": [
-      { "type": "shield", "value": 2, "enhanceable": true }
+      {
+        "type": "shield",
+        "value": 2,
+        "enhanceable": true,
+        "slots": ["circle"]
+      }
     ]
   }
 ]
