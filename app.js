@@ -16,6 +16,7 @@ let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
+let usedSlots = new WeakMap();
 
 Promise.all([
   fetch("data/cards.json").then(r => r.json()),
@@ -75,6 +76,18 @@ function renderActions(actions, container) {
 }
 
 function selectAction(action) {
+  if (!usedSlots.has(action)) {
+  usedSlots.set(action, []);
+}
+
+const remainingSlots =
+  action.enhancement_slots.length - usedSlots.get(action).length;
+
+if (remainingSlots <= 0) {
+  enhancementSelectEl.innerHTML = `<option>No slots remaining</option>`;
+  return;
+}
+
   currentAction = action;
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "";
