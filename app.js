@@ -16,6 +16,7 @@ const elementSelectEl = document.getElementById("element-select");
 let allCards = [];
 let enhancementCosts = {};
 let enhancementRules = {};
+
 let currentCard = null;
 let currentAction = null;
 
@@ -37,15 +38,13 @@ Promise.all([
   });
 });
 
-/* ===== CLASSES ===== */
-
 function showCardsForClass(cls) {
   contentTitleEl.textContent = `${cls.name} Cards`;
   cardListEl.innerHTML = "";
   cardDetailEl.style.display = "none";
 
   allCards
-    .filter(card => card.class === cls.id)
+    .filter(c => c.class === cls.id)
     .forEach(card => {
       const li = document.createElement("li");
       li.textContent = `${card.name} (Level ${card.level})`;
@@ -53,8 +52,6 @@ function showCardsForClass(cls) {
       cardListEl.appendChild(li);
     });
 }
-
-/* ===== CARD ===== */
 
 function showCard(card) {
   currentCard = card;
@@ -67,6 +64,7 @@ function showCard(card) {
   bottomActionsEl.innerHTML = "";
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "Select an action.";
+  elementChoiceEl.style.display = "none";
 
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
@@ -80,8 +78,8 @@ function renderActions(actions, container) {
     const btn = document.createElement("button");
 
     let label = action.type.toUpperCase();
-    if (action.multi) label += " (MULTI)";
-    if (action.loss) label += " 🔥";
+    if (action.multi) label += " (Multi)";
+    if (action.loss) label += " [LOSS]";
 
     btn.textContent = label;
     btn.onclick = () => selectAction(action);
@@ -90,8 +88,6 @@ function renderActions(actions, container) {
     container.appendChild(li);
   });
 }
-
-/* ===== ACTION / ENHANCEMENT ===== */
 
 function selectAction(action) {
   currentAction = action;
@@ -110,8 +106,6 @@ function selectAction(action) {
   });
 }
 
-/* ===== COST CALCULATION ===== */
-
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
 
@@ -122,30 +116,29 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   const costData = enhancementCosts[enh];
-  if (!costData) {
+  if (!costData?.single) {
     costOutputEl.textContent = "No cost data.";
-    elementChoiceEl.style.display = "none";
     return;
   }
 
-  // Mostrar escolha de elemento apenas para Wild Element
+  // 1️⃣ custo base (single)
+  let cost = costData.single["1"];
+
+  // 2️⃣ multi-target dobra
+  if (currentAction.multi) {
+    cost *= 2;
+  }
+
+  // 3️⃣ LOSS divide por 2 (regra final)
+  if (currentAction.loss) {
+    cost = Math.floor(cost / 2);
+  }
+
+  // Wild element
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
   } else {
     elementChoiceEl.style.display = "none";
-  }
-
-  let cost = 0;
-
-  if (currentAction.multi && costData.multi) {
-    cost = costData.multi["1"];
-  } else if (costData.single) {
-    cost = costData.single["1"];
-  }
-
-  // LOSS → metade do custo (GH2 rule)
-  if (currentAction.loss) {
-    cost = Math.floor(cost / 2);
   }
 
   costOutputEl.textContent = `Cost: ${cost}g`;
