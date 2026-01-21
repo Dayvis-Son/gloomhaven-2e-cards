@@ -1,30 +1,23 @@
-/* =====================================================
-   ENHANCEMENT LOGIC — GLOOMHAVEN 2E
-   ===================================================== */
+export const SLOT_ICONS = {
+  square: "⬜",
+  circle: "⚪",
+  triangle: "🔺",
+  triangle_plus: "🔺➕",
+  hex: "⬢"
+};
 
-/* -----------------------------
-   BASE PER ACTION TYPE
------------------------------ */
 export const ACTION_BASE_RULES = {
   attack: {
     square: ["attack"],
     circle: ["attack", "elements", "wild_elements"],
-    triangle: [
-      "attack",
-      "elements", "wild_elements",
-      "immobilize", "curse", "poison", "wound", "muddle"
-    ],
-    triangle_plus: [
-      "attack",
-      "elements", "wild_elements",
-      "bless", "strengthen", "ward"
-    ]
+    triangle: ["immobilize", "curse", "poison", "wound", "muddle"],
+    triangle_plus: ["bless", "strengthen", "ward"]
   },
 
   heal: {
     square: ["heal"],
     circle: ["heal", "elements", "wild_elements"],
-    triangle_plus: ["heal", "elements", "wild_elements", "bless", "strengthen", "ward"]
+    triangle_plus: ["bless", "strengthen", "ward"]
   },
 
   move: {
@@ -37,6 +30,19 @@ export const ACTION_BASE_RULES = {
     circle: ["move", "elements", "wild_elements"]
   },
 
+  retaliate: {
+    square: ["retaliate"],
+    triangle_plus: ["bless", "strengthen", "ward"]
+  },
+
+  shield: {
+    square: ["shield"]
+  },
+
+  area: {
+    hex: ["area_hex"]
+  },
+
   range: {
     square: ["range"]
   },
@@ -45,37 +51,30 @@ export const ACTION_BASE_RULES = {
     square: ["target"]
   },
 
-  shield: {
-    square: ["shield"]
-  },
-
-  retaliate: {
-    square: ["retaliate"],
-    triangle_plus: ["retaliate", "bless", "strengthen", "ward"]
-  },
-
-  summon_hp: { square: ["summon_hp"] },
-  summon_attack: { square: ["summon_attack"] },
-  summon_move: { square: ["summon_move"] },
-  summon_range: { square: ["summon_range"] },
-
-  area_hex: {
-    hex: ["area_hex"]
+  summon: {
+    square: ["summon_hp", "summon_attack", "summon_move", "summon_range"]
   }
 };
 
-/* -----------------------------
-   CONDITIONAL FILTERS
------------------------------ */
 export function applyConditionalFilters(action, options) {
-  let result = [...options];
-
-  // ❌ Jump não aparece se já existir na ação
-  if (action.type === "move" || action.type === "teleport") {
-    if (action.jump === true) {
-      result = result.filter(o => o !== "jump");
-    }
+  // Jump não aparece se já existir
+  if (action.jump) {
+    options = options.filter(o => o !== "jump");
   }
 
-  return result;
+  // Attack nunca pode receber move/heal/jump
+  if (action.type === "attack") {
+    options = options.filter(
+      o => !["move", "jump", "heal"].includes(o)
+    );
+  }
+
+  // Move só move/jump
+  if (action.type === "move") {
+    options = options.filter(
+      o => ["move", "jump", "elements", "wild_elements"].includes(o)
+    );
+  }
+
+  return options;
 }
