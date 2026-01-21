@@ -75,7 +75,11 @@ function renderActions(actions, container) {
     const li = document.createElement("li");
     const btn = document.createElement("button");
 
-    btn.textContent = `${action.type.toUpperCase()}${action.loss ? " (LOSS)" : ""}`;
+    btn.textContent =
+      `${action.type.toUpperCase()}` +
+      (action.hexes ? ` (${action.hexes} HEX)` : "") +
+      (action.loss ? " [LOSS]" : "");
+
     btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
@@ -109,40 +113,40 @@ enhancementSelectEl.addEventListener("change", () => {
     return;
   }
 
-  const costData = enhancementCosts[enh];
-  if (!costData) {
-    costOutputEl.textContent = "No cost data.";
-    return;
+  let baseCost = 0;
+
+  // 🔹 AREA OF EFFECT HEX (regra especial)
+  if (enh === "area_hex") {
+    const hexCount = currentAction.hexes || 1;
+    baseCost = Math.floor(200 / hexCount);
+  } else {
+    const costData = enhancementCosts[enh];
+    if (!costData) {
+      costOutputEl.textContent = "No cost data.";
+      return;
+    }
+
+    baseCost = currentAction.multi
+      ? costData.multi?.["1"]
+      : costData.single?.["1"];
   }
 
-  // 🔹 1. Valor base (single / multi)
-  let baseCost = currentAction.multi
-    ? costData.multi?.["1"]
-    : costData.single?.["1"];
-
-  if (baseCost == null) {
-    costOutputEl.textContent = "Invalid enhancement.";
-    return;
-  }
-
-  // 🔹 2. LOSS → metade SOMENTE do valor base
+  // 🔹 LOSS → divide somente o valor base
   if (currentAction.loss) {
     baseCost = Math.floor(baseCost / 2);
   }
 
-  // 🔹 3. Acréscimo por nível (apenas acima do level 1)
+  // 🔹 Acréscimo por nível (level > 1)
   let levelCost = 0;
   if (typeof currentCard.level === "number" && currentCard.level > 1) {
     levelCost = (currentCard.level - 1) * 25;
   }
 
-  // 🔹 4. Enhancements existentes (placeholder futuro)
+  // 🔹 Enhancements existentes (futuro)
   let existingCost = 0;
 
-  // 🔹 5. Total final
   const total = baseCost + levelCost + existingCost;
 
-  // 🔹 Wild Element → escolher elemento
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
   } else {
@@ -150,10 +154,7 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   costOutputEl.textContent =
-    `Base: ${baseCost}g` +
-    ` | Level: ${levelCost}g` +
-    ` | Existing: ${existingCost}g` +
-    ` → Total: ${total}g`;
+    `Base: ${baseCost}g | Level: ${levelCost}g | Existing: ${existingCost}g → Total: ${total}g`;
 });
 
 elementSelectEl.addEventListener("change", () => {
