@@ -109,7 +109,7 @@ function selectAction(action) {
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
 
-  if (!enh || !currentAction) {
+  if (!enh || !currentAction || !currentCard) {
     costOutputEl.textContent = "";
     elementChoiceEl.style.display = "none";
     return;
@@ -121,27 +121,35 @@ enhancementSelectEl.addEventListener("change", () => {
     return;
   }
 
-  // 1️⃣ custo base (single)
-  let cost = costData.single["1"];
+  // 🔹 1. VALOR BASE
+  let baseCost = costData.single["1"];
 
-  // 2️⃣ multi-target dobra
+  // 🔹 2. MULTI (somente no base)
   if (currentAction.multi) {
-    cost *= 2;
+    baseCost *= 2;
   }
 
-  // 3️⃣ LOSS divide por 2 (regra final)
+  // 🔹 3. LOSS (somente no base)
   if (currentAction.loss) {
-    cost = Math.floor(cost / 2);
+    baseCost = Math.floor(baseCost / 2);
   }
 
-  // Wild element
+  // 🔹 4. ACRÉSCIMOS FIXOS (não sofrem modificação)
+  const levelCost = currentCard.level * 25;
+  const existingEnhancementsCost = (currentAction.enhancements || 0) * 75;
+
+  const totalCost = baseCost + levelCost + existingEnhancementsCost;
+
+  // Wild Element
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
   } else {
     elementChoiceEl.style.display = "none";
   }
 
-  costOutputEl.textContent = `Cost: ${cost}g`;
+  costOutputEl.textContent =
+    `Cost: ${totalCost}g ` +
+    `(Base: ${baseCost} + Level: ${levelCost} + Existing: ${existingEnhancementsCost})`;
 });
 
 elementSelectEl.addEventListener("change", () => {
