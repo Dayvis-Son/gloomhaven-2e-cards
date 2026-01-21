@@ -14,6 +14,7 @@ const costOutputEl = document.getElementById("cost-output");
 
 let allCards = [];
 let enhancementCosts = {};
+let currentCard = null;
 let currentAction = null;
 
 Promise.all([
@@ -48,8 +49,10 @@ function showCards(classId, className) {
 }
 
 function showCard(card) {
+  currentCard = card;
+
   cardDetailEl.style.display = "block";
-  cardNameEl.textContent = card.name;
+  cardNameEl.textContent = `${card.name} (Level ${card.level})`;
 
   topActionsEl.innerHTML = "";
   bottomActionsEl.innerHTML = "";
@@ -82,8 +85,8 @@ function selectAction(action) {
   let allowed = [];
 
   action.enhancement_slots.forEach(slot => {
-    const options = rulesByType[slot];
-    if (options) allowed.push(...options);
+    const opts = rulesByType[slot];
+    if (opts) allowed.push(...opts);
   });
 
   allowed = [...new Set(allowed)];
@@ -98,22 +101,57 @@ function selectAction(action) {
 }
 
 enhancementSelectEl.addEventListener("change", () => {
-  if (!currentAction) return;
+  if (!currentAction || !currentCard) return;
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  const base = enhancementCosts[enh]?.single?.["1"];
-  if (!base) {
-    costOutputEl.textContent = "No cost data";
-    return;
+  let breakdown = [];
+  let baseCost = 0;
+
+  // AREA HEX (regra especial)
+  if (enh === "area_hex") {
+    const hexes = currentAction.hexes || 1;
+    baseCost = Math.ceil(200 / hexes);
+    breakdown.push(`Base: 200 / ${hexes} = ${baseCost}`);
+  } else {
+    baseCost = enhancementCosts[enh]?.single?.["1"];
+    if (!baseCost) {
+      costOutputEl.textContent = "No cost data";
+      return;
+    }
+    breakdown.push(`Base: ${baseCost}`);
   }
 
-  let cost = base;
+  // MULTI-TARGET
+  let multiApplied = false;
+  if (currentAction.multi && !currentAction.loss) {
+    baseCost *= 2;
+    multiApplied = true;
+    breakdown.push(`Multi-target: x2`);
+  }
 
-  // Loss: divide SOMENTE o valor base
+  // LOSS
   if (currentAction.loss) {
-    cost = Math.ceil(cost / 2);
+    baseCost = Math.ceil(baseCost / 2);
+    breakdown.push(`Loss: ÷2`);
   }
 
-  costOutputEl.textContent = `Cost: ${cost}g`;
+  let total = baseCost;
+
+  // LEVEL (a partir do 2)
+  if (typeof currentCard.level === "number" && currentCard.level > 1) {
+    const levelCost = (currentCard.level - 1) * 25;
+    total += levelCost;
+    breakdown.push(`Level: +${levelCost}`);
+  }
+
+  // EXISTING ENHANCEMENT (placeholder)
+  if (currentCard.has_enhancement) {
+    total += 75;
+    breakdown.push(`Existing enhancement: +75`);
+  }
+
+  breakdown.push(`Total: ${total}g`);
+
+  costOutputEl.innerHTML = breakdown.join("<br>");
 });
