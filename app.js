@@ -113,7 +113,33 @@ function updateEnhancementOptions() {
     return;
   }
 
-  const allowed = enhancementRules[currentAction.type] || [];
+function getRuleKeyForActionType(type) {
+  const attackLike = [
+    "attack",
+    "range",
+    "target",
+    "pierce",
+    "wound",
+    "poison",
+    "muddle",
+    "immobilize",
+    "curse",
+    "push",
+    "pull"
+  ];
+
+  if (attackLike.includes(type)) return "attack";
+  if (type === "move" || type === "jump") return "move";
+  if (type === "heal" || type === "bless" || type === "strengthen") return "heal";
+  if (type === "elements" || type === "wild_elements") return "elements";
+  if (type === "area_hex") return "area";
+
+  return type;
+}
+
+  
+ const ruleKey = getRuleKeyForActionType(currentAction.type);
+const allowed = enhancementRules[ruleKey] || [];
 
   allowed.forEach(enh => {
     const slotType = getSlotTypeForEnhancement(enh);
