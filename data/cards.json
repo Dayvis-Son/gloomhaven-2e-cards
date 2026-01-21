@@ -1,16 +1,25 @@
 [
   {
-    "id": "brute_trample",
-    "class": "brute",
-    "name": "Trample",
-    "level": 1,
-    "top": [
-      { "type": "attack", "value": 3, "multi": true, "enhanceable": true }
-    ],
-    "bottom": [
-      { "type": "move", "value": 4, "enhanceable": true }
-    ]
-  },
+  "id": "brute_trample",
+  "class": "brute",
+  "name": "Trample",
+  "level": 1,
+  "top": [
+    {
+      "type": "attack",
+      "value": 3,
+      "enhanceable": true
+    }
+  ],
+  "bottom": [
+    {
+      "type": "move",
+      "value": 4,
+      "enhanceable": true,
+      "loss": true
+    }
+  ]
+},
   {
     "id": "brute_leaping_cleave",
     "class": "brute",
