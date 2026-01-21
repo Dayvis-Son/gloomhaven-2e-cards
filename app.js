@@ -9,14 +9,12 @@ const bottomActionsEl = document.getElementById("bottom-actions");
 
 const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
-
 const elementChoiceEl = document.getElementById("element-choice");
 const elementSelectEl = document.getElementById("element-select");
 
 let allCards = [];
 let enhancementCosts = {};
 let enhancementRules = {};
-
 let currentCard = null;
 let currentAction = null;
 
@@ -77,11 +75,7 @@ function renderActions(actions, container) {
     const li = document.createElement("li");
     const btn = document.createElement("button");
 
-    let label = action.type.toUpperCase();
-    if (action.multi) label += " (Multi)";
-    if (action.loss) label += " [LOSS]";
-
-    btn.textContent = label;
+    btn.textContent = `${action.type.toUpperCase()}${action.loss ? " (LOSS)" : ""}`;
     btn.onclick = () => selectAction(action);
 
     li.appendChild(btn);
@@ -101,7 +95,7 @@ function selectAction(action) {
   allowed.forEach(enh => {
     const opt = document.createElement("option");
     opt.value = enh;
-    opt.textContent = enh.replace(/_/g, " ").toUpperCase();
+    opt.textContent = enh.replace("_", " ").toUpperCase();
     enhancementSelectEl.appendChild(opt);
   });
 }
@@ -109,38 +103,46 @@ function selectAction(action) {
 enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
 
-  if (!enh || !currentAction || !currentCard) {
+  if (!enh || !currentAction) {
     costOutputEl.textContent = "";
     elementChoiceEl.style.display = "none";
     return;
   }
 
   const costData = enhancementCosts[enh];
-  if (!costData?.single) {
+  if (!costData) {
     costOutputEl.textContent = "No cost data.";
     return;
   }
 
-  // 🔹 1. VALOR BASE
-  let baseCost = costData.single["1"];
+  // 🔹 1. Valor base (single / multi)
+  let baseCost = currentAction.multi
+    ? costData.multi?.["1"]
+    : costData.single?.["1"];
 
-  // 🔹 2. MULTI (somente no base)
-  if (currentAction.multi) {
-    baseCost *= 2;
+  if (baseCost == null) {
+    costOutputEl.textContent = "Invalid enhancement.";
+    return;
   }
 
-  // 🔹 3. LOSS (somente no base)
+  // 🔹 2. LOSS → metade SOMENTE do valor base
   if (currentAction.loss) {
     baseCost = Math.floor(baseCost / 2);
   }
 
-  // 🔹 4. ACRÉSCIMOS FIXOS (não sofrem modificação)
-  const levelCost = currentCard.level * 25;
-  const existingEnhancementsCost = (currentAction.enhancements || 0) * 75;
+  // 🔹 3. Acréscimo por nível (apenas acima do level 1)
+  let levelCost = 0;
+  if (typeof currentCard.level === "number" && currentCard.level > 1) {
+    levelCost = (currentCard.level - 1) * 25;
+  }
 
-  const totalCost = baseCost + levelCost + existingEnhancementsCost;
+  // 🔹 4. Enhancements existentes (placeholder futuro)
+  let existingCost = 0;
 
-  // Wild Element
+  // 🔹 5. Total final
+  const total = baseCost + levelCost + existingCost;
+
+  // 🔹 Wild Element → escolher elemento
   if (enh === "wild_elements") {
     elementChoiceEl.style.display = "block";
   } else {
@@ -148,12 +150,15 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   costOutputEl.textContent =
-    `Cost: ${totalCost}g ` +
-    `(Base: ${baseCost} + Level: ${levelCost} + Existing: ${existingEnhancementsCost})`;
+    `Base: ${baseCost}g` +
+    ` | Level: ${levelCost}g` +
+    ` | Existing: ${existingCost}g` +
+    ` → Total: ${total}g`;
 });
 
 elementSelectEl.addEventListener("change", () => {
   if (enhancementSelectEl.value === "wild_elements") {
-    costOutputEl.textContent += ` — Element: ${elementSelectEl.value.toUpperCase()}`;
+    costOutputEl.textContent +=
+      ` — Element: ${elementSelectEl.value.toUpperCase()}`;
   }
 });
