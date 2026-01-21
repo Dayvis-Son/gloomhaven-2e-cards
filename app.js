@@ -96,11 +96,18 @@ function renderActions(actions, container) {
     if (used.length === 0) {
       applied.textContent = "No enhancements applied";
     } else {
-      used.forEach(e => {
-        const tag = document.createElement("span");
-        tag.textContent = e.replace("_", " ").toUpperCase();
-        applied.appendChild(tag);
-      });
+   used.forEach((e, index) => {
+  const tag = document.createElement("span");
+  tag.textContent = e.replace("_", " ").toUpperCase();
+  tag.style.cursor = "pointer";
+  tag.title = "Click to remove";
+
+  tag.onclick = () => {
+    removeEnhancement(action, index);
+  };
+
+  applied.appendChild(tag);
+});
     }
 
     row.appendChild(btn);
