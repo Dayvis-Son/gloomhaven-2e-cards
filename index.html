@@ -3,69 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <title>Gloomhaven 2nd Edition Cards</title>
+
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- IMPORTANTE: scripts como module -->
+  <script type="module" src="app.js" defer></script>
 </head>
+
 <body>
 
-<header class="top-bar">
-  <h1>Gloomhaven 2nd Edition Cards</h1>
-</header>
+  <header class="top-bar">
+    <h1>Gloomhaven 2nd Edition Cards</h1>
+  </header>
 
-<main class="layout">
-  <aside class="sidebar">
-    <h2>Classes</h2>
-    <ul id="class-list"></ul>
-  </aside>
+  <main class="layout">
 
-  <section class="content">
-    <h2 id="content-title">Cards</h2>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>Classes</h2>
+      <ul id="class-list"></ul>
+    </aside>
 
-    <ul id="card-list"></ul>
+    <!-- MAIN CONTENT -->
+    <section class="content">
 
-    <div id="card-detail" style="display:none">
-      <h2 id="card-name"></h2>
+      <h2 id="content-title">Cards</h2>
 
-      <div class="card-actions">
-        <div class="card-half top">
-          <h3>TOP</h3>
-          <ul id="top-actions"></ul>
+      <!-- CARD LIST -->
+      <ul id="card-list"></ul>
+
+      <!-- CARD DETAIL -->
+      <div id="card-detail" style="display:none">
+
+        <h2 id="card-name"></h2>
+
+        <div class="card-actions">
+
+          <div class="card-half top">
+            <h3>TOP</h3>
+            <ul id="top-actions"></ul>
+          </div>
+
+          <div class="card-half bottom">
+            <h3>BOTTOM</h3>
+            <ul id="bottom-actions"></ul>
+          </div>
+
         </div>
 
-        <div class="card-half bottom">
-          <h3>BOTTOM</h3>
-          <ul id="bottom-actions"></ul>
-        </div>
-      </div>
+        <!-- ENHANCEMENT PANEL -->
+        <div class="enhancement-panel">
 
-      <div class="enhancement-panel">
-        <label>
-          Enhancement:
-          <select id="enhancement-select">
-            <option value="">Select enhancement</option>
-          </select>
-        </label>
-
-        <div id="element-choice" style="display:none">
           <label>
-            Choose Element:
-            <select id="element-select">
-              <option value="fire">Fire</option>
-              <option value="ice">Ice</option>
-              <option value="air">Air</option>
-              <option value="earth">Earth</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+            Enhancement:
+            <select id="enhancement-select">
+              <option value="">Select enhancement</option>
             </select>
           </label>
+
+          <p id="cost-output"></p>
+
         </div>
 
-        <p id="cost-output">Select an enhancement.</p>
       </div>
-    </div>
 
-  </section>
-</main>
+    </section>
+  </main>
 
-<script src="app.js"></script>
 </body>
 </html>
