@@ -165,6 +165,8 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   breakdown.push(`Total: ${total}g`);
+  usedSlots.get(currentAction).push(enh);
+
 
   costOutputEl.innerHTML = breakdown.join("<br>");
 });
