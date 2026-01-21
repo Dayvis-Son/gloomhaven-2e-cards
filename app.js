@@ -136,31 +136,31 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh || !currentAction) return;
 
-  const baseCost = enhancementCosts[enh];
-  if (baseCost == null) {
+  const typeCosts = enhancementCosts[enh];
+  if (!typeCosts || !typeCosts.single || typeCosts.single["1"] == null) {
     costOutputEl.textContent = "No cost data.";
     return;
   }
 
-  let base = baseCost;
+  let base = typeCosts.single["1"];
 
-  // MULTI (apenas se não for Loss)
-  if (currentAction.multi && !currentAction.loss) {
+  // MULTI: dobra o base
+  if (currentAction.multi) {
     base *= 2;
   }
 
-  // LOSS divide apenas o base
+  // LOSS: divide APENAS o base
   if (currentAction.loss) {
     base /= 2;
   }
 
-  // LEVEL (somente a partir do level 2)
+  // LEVEL: somente a partir do level 2
   let levelCost = 0;
   if (typeof currentCard.level === "number" && currentCard.level >= 2) {
     levelCost = (currentCard.level - 1) * 25;
   }
 
-  // EXISTING ENHANCEMENTS
+  // EXISTING ENHANCEMENTS (+75g cada)
   const existingCost = appliedEnhancements.length * 75;
 
   const total = base + levelCost + existingCost;
@@ -186,9 +186,3 @@ enhancementSelectEl.addEventListener("change", () => {
   updateEnhancementOptions();
 });
 
-elementSelectEl.addEventListener("change", () => {
-  if (enhancementSelectEl.value === "wild_elements") {
-    costOutputEl.innerHTML +=
-      `<br>Element: ${elementSelectEl.value.toUpperCase()}`;
-  }
-});
