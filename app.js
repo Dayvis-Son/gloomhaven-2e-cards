@@ -183,11 +183,20 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  let base = enhancementCosts[enh]?.single?.["1"];
+ let base = 0;
+
+// AREA HEX (regra especial)
+if (enh === "area_hex") {
+  const hexes = currentAction.hexes || 1;
+  base = Math.ceil(200 / hexes);
+} else {
+  base = enhancementCosts[enh]?.single?.["1"];
   if (!base) {
     costOutputEl.textContent = "No cost data";
     return;
   }
+}
+
 
   // MULTI (apenas se não for LOSS)
   if (currentAction.multi && !currentAction.loss) {
@@ -208,7 +217,8 @@ enhancementSelectEl.addEventListener("change", () => {
 
   usedSlots.get(currentAction).push(enh);
 
-  costOutputEl.innerHTML = `Total cost: <strong>${total}g</strong>`;
+  costOutputEl.innerHTML = `<strong>Total cost: ${total}g</strong>`;
+
 
   cardEnhancements.get(currentCard).push({
   action: currentAction,
@@ -219,23 +229,39 @@ enhancementSelectEl.addEventListener("change", () => {
 updateTotalCost(currentCard);
 
   
-  showCard(currentCard);
 });
 
 function removeEnhancement(action, index) {
   const list = usedSlots.get(action);
   if (!list) return;
 
+  const removedEnh = list[index];
   list.splice(index, 1);
 
-  // reset UI
+  // remover do total da carta
+  const cardList = cardEnhancements.get(currentCard);
+  const idx = cardList.findIndex(
+    e => e.action === action && e.enhancement === removedEnh
+  );
+
+  if (idx !== -1) {
+    cardList.splice(idx, 1);
+  }
+
+  updateTotalCost(currentCard);
+
+  // reset seleção
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "";
   currentAction = null;
 
-  // re-render card to refresh slots + list
-  showCard(currentCard);
+  // re-render apenas ações
+  topActionsEl.innerHTML = "";
+  bottomActionsEl.innerHTML = "";
+  renderActions(currentCard.top, topActionsEl);
+  renderActions(currentCard.bottom, bottomActionsEl);
 }
+
 
 function getEnhancementIcon(enh) {
   if (enh === "attack") return "⚔️";
