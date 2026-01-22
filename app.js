@@ -147,12 +147,14 @@ function selectAction(action) {
   const remaining =
     action.enhancement_slots.length - usedSlots.get(action).length;
 
-  enhancementSelectEl.innerHTML =
-    remaining <= 0
-      ? `<option>No slots remaining</option>`
-      : `<option value="">Select enhancement</option>`;
+if (remaining <= 0) {
+  enhancementSelectEl.innerHTML = `<option>No slots remaining</option>`;
+  enhancementSelectEl.disabled = true;
+  return;
+}
 
-  if (remaining <= 0) return;
+enhancementSelectEl.disabled = false;
+
 
   const rules = ACTION_BASE_RULES[action.type];
   if (!rules) return;
@@ -176,7 +178,7 @@ allowed.forEach(e => {
 
   const slotIcon = SLOT_ICONS[slot] ?? "";
   opt.textContent = `${slotIcon} ${e.replace("_", " ").toUpperCase()}`;
-
+opt.title = getEnhancementHelp(e, action.type);
   enhancementSelectEl.appendChild(opt);
 });
 
@@ -208,6 +210,9 @@ enhancementSelectEl.addEventListener("change", () => {
   }
 
   usedSlots.get(currentAction).push(enh);
+  enhancementSelectEl.value = "";
+enhancementSelectEl.blur();
+
   cardEnhancements.get(currentCard).push({
     action: currentAction,
     enhancement: enh,
@@ -281,4 +286,24 @@ function getEnhancementIcon(e) {
     elements: "🔥",
     wild_elements: "🌈"
   }[e] || "•";
+}
+
+function getEnhancementHelp(enh, actionType) {
+  const map = {
+    attack: "Adds +1 Attack",
+    heal: "Adds +1 Heal",
+    move: "Adds +1 Move",
+    jump: "Grants Jump",
+    poison: "Applies Poison",
+    wound: "Applies Wound",
+    curse: "Applies Curse",
+    bless: "Applies Bless",
+    strengthen: "Applies Strengthen",
+    ward: "Applies Ward",
+    area_hex: "Adds an extra hex to AoE",
+    elements: "Creates an element",
+    wild_elements: "Creates any element"
+  };
+
+  return map[enh] ?? `Enhancement for ${actionType}`;
 }
