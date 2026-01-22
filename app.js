@@ -29,6 +29,8 @@ let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
 let usedSlots = new WeakMap();
+let cardEnhancements = new WeakMap();
+
 
 Promise.all([
   fetch("data/cards.json").then(r => r.json()),
@@ -62,6 +64,8 @@ function showCards(classId, className) {
 }
 
 function showCard(card) {
+  cardEnhancements.set(card, []);
+updateTotalCost(card);
   currentCard = card;
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = `${card.name} (Level ${card.level})`;
@@ -206,6 +210,15 @@ enhancementSelectEl.addEventListener("change", () => {
 
   costOutputEl.innerHTML = `Total cost: <strong>${total}g</strong>`;
 
+  cardEnhancements.get(currentCard).push({
+  action: currentAction,
+  enhancement: enh,
+  cost: total
+});
+
+updateTotalCost(currentCard);
+
+  
   showCard(currentCard);
 });
 
