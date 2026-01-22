@@ -205,3 +205,8 @@ button.danger {
 button.danger:hover {
   background: #a62828;
 }
+
+.invalid-action {
+  border: 2px solid #c0392b;
+  background: rgba(192, 57, 43, 0.15);
+}
