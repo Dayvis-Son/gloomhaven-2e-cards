@@ -370,3 +370,35 @@ function loadCardState(card) {
 
   updateTotalCost(card);
 }
+
+resetBtnEl.addEventListener("click", () => {
+  if (!currentCard) return;
+
+  // limpar enhancements da carta
+  cardEnhancements.set(currentCard, []);
+
+  // limpar slots usados apenas dessa carta
+  [...currentCard.top, ...currentCard.bottom].forEach(action => {
+    usedSlots.delete(action);
+  });
+
+  // remover do localStorage
+  const store = getStorage();
+  const key = getCardKey(currentCard);
+  delete store[key];
+  setStorage(store);
+
+  // reset UI
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.textContent = "";
+  currentAction = null;
+
+  updateTotalCost(currentCard);
+
+  // re-render completo da carta
+  topActionsEl.innerHTML = "";
+  bottomActionsEl.innerHTML = "";
+  renderActions(currentCard.top, topActionsEl);
+  renderActions(currentCard.bottom, bottomActionsEl);
+  renderCardPreview(currentCard);
+});
