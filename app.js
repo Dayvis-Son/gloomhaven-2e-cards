@@ -165,12 +165,21 @@ function selectAction(action) {
   allowed = [...new Set(allowed)];
   allowed = applyConditionalFilters(action, allowed);
 
-  allowed.forEach(e => {
-    const opt = document.createElement("option");
-    opt.value = e;
-    opt.textContent = e.toUpperCase();
-    enhancementSelectEl.appendChild(opt);
-  });
+allowed.forEach(e => {
+  const opt = document.createElement("option");
+  opt.value = e;
+
+  // descobrir qual slot libera esse enhancement
+  const slot = action.enhancement_slots.find(s =>
+    ACTION_BASE_RULES[action.type]?.[s]?.includes(e)
+  );
+
+  const slotIcon = SLOT_ICONS[slot] ?? "";
+  opt.textContent = `${slotIcon} ${e.replace("_", " ").toUpperCase()}`;
+
+  enhancementSelectEl.appendChild(opt);
+});
+
 }
 
 enhancementSelectEl.addEventListener("change", () => {
