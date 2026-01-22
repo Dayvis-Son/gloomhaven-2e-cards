@@ -112,7 +112,9 @@ btn.textContent = `${symbols} ${action.type.toUpperCase()}`;
     } else {
    used.forEach((e, index) => {
   const tag = document.createElement("span");
-  tag.textContent = e.replace("_", " ").toUpperCase();
+const icon = getEnhancementIcon(e);
+tag.textContent = `${icon} ${e.replace("_", " ").toUpperCase()}`;
+
   tag.style.cursor = "pointer";
   tag.title = "Click to remove";
 
