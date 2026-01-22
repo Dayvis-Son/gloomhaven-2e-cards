@@ -81,6 +81,7 @@ updateTotalCost(card);
 
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
+  renderCardPreview(card);
 }
 
 function renderActions(actions, container) {
@@ -231,6 +232,10 @@ if (enh === "area_hex") {
 });
 
 updateTotalCost(currentCard);
+renderCardPreview(currentCard);
+
+showCard(currentCard);
+
 
   
 });
@@ -264,6 +269,8 @@ function removeEnhancement(action, index) {
   bottomActionsEl.innerHTML = "";
   renderActions(currentCard.top, topActionsEl);
   renderActions(currentCard.bottom, bottomActionsEl);
+  renderCardPreview(currentCard);
+
 }
 
 
