@@ -24,6 +24,10 @@ const bottomActionsEl = document.getElementById("bottom-actions");
 const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
 
+const topPreviewEl = document.getElementById("top-preview");
+const bottomPreviewEl = document.getElementById("bottom-preview");
+
+
 let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
@@ -297,4 +301,35 @@ function updateTotalCost(card) {
   if (el) {
     el.textContent = `${total}g`;
   }
+}
+
+function renderCardPreview(card) {
+  topPreviewEl.innerHTML = "";
+  bottomPreviewEl.innerHTML = "";
+
+  const renderSide = (actions, container) => {
+    actions.forEach(action => {
+      const row = document.createElement("div");
+      row.className = "action-preview";
+
+      const base = document.createElement("span");
+      base.textContent = `${action.type.toUpperCase()} ${action.value ?? ""}`;
+
+      const enh = document.createElement("span");
+      enh.className = "enh";
+
+      const applied = usedSlots.get(action) || [];
+      enh.textContent =
+        applied.length > 0
+          ? applied.map(e => getEnhancementIcon(e)).join(" ")
+          : "";
+
+      row.appendChild(base);
+      row.appendChild(enh);
+      container.appendChild(row);
+    });
+  };
+
+  renderSide(card.top, topPreviewEl);
+  renderSide(card.bottom, bottomPreviewEl);
 }
