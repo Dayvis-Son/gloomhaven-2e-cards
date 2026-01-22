@@ -461,3 +461,31 @@ resetBtnEl.addEventListener("click", () => {
 
   showCard(currentCard);
 });
+
+/* =======================
+   F7 — EXPORT IMAGE (PNG)
+======================= */
+
+const exportImageBtn = document.getElementById("export-image");
+
+exportImageBtn.addEventListener("click", async () => {
+  if (!currentCard) return;
+
+  const cardEl = document.querySelector(".card-preview");
+
+  if (!cardEl) {
+    alert("Card preview not found");
+    return;
+  }
+
+  const canvas = await html2canvas(cardEl, {
+    backgroundColor: "#ffffff",
+    scale: 2
+  });
+
+  const link = document.createElement("a");
+  link.download = `${currentCard.class}_${currentCard.name}_Lv${currentCard.level}.png`;
+  link.href = canvas.toDataURL("image/png");
+
+  link.click();
+});
