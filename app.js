@@ -5,6 +5,8 @@ import {
 } from "./data/enhancement-logic.js";
 
 import { validateEnhancement } from "./data/enhancement-validator.js";
+import { hardFilterEnhancements } from "./data/enhancement-hard-filter.js";
+
 
 
 /* =======================
@@ -199,8 +201,16 @@ function selectAction(action) {
     if (rules[slot]) allowed.push(...rules[slot]);
   });
 
-  allowed = [...new Set(allowed)];
-  allowed = applyConditionalFilters(action, allowed);
+ allowed = [...new Set(allowed)];
+allowed = applyConditionalFilters(action, allowed);
+
+// 🔒 G2 — HARD FILTER
+allowed = hardFilterEnhancements({
+  action,
+  allowed,
+  used: usedSlots.get(action) || []
+});
+
 
   allowed.forEach(e => {
     const opt = document.createElement("option");
