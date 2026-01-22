@@ -143,3 +143,52 @@ button {
 .enhancement-applied span:hover {
   background: #555;
 }
+
+.card-preview {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #444;
+  border-radius: 8px;
+  margin-top: 16px;
+  background: #2b2b2b;
+}
+
+.card-half-preview {
+  padding: 12px;
+}
+
+.card-half-preview.top {
+  background: #f5f5f5;
+  color: #000;
+}
+
+.card-half-preview.bottom {
+  background: #ffffff;
+  color: #000;
+}
+
+.card-divider {
+  height: 2px;
+  background: #000;
+}
+
+.card-half-preview h4 {
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.action-preview {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.action-preview span.enh {
+  font-weight: bold;
+}
+
+.card-total {
+  margin-top: 10px;
+  font-size: 16px;
+}
