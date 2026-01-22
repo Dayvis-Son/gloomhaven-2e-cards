@@ -4,6 +4,9 @@ import {
   SLOT_ICONS
 } from "./data/enhancement-logic.js";
 
+import { validateEnhancement } from "./data/enhancement-validator.js";
+
+
 /* =======================
    CONSTANTS & ELEMENTS
 ======================= */
