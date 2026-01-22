@@ -4,6 +4,10 @@ import {
   SLOT_ICONS
 } from "./data/enhancement-logic.js";
 
+/* =========================
+   CONSTANTES & ELEMENTOS
+========================= */
+
 const SLOT_SYMBOLS = {
   square: "⬜",
   circle: "⚪",
@@ -29,13 +33,36 @@ const bottomPreviewEl = document.getElementById("bottom-preview");
 
 const resetBtnEl = document.getElementById("reset-card-enhancements");
 
+/* =========================
+   STATE
+========================= */
+
 let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
 
-const usedSlots = new WeakMap();
+let usedSlots = new WeakMap(); // runtime only
 const cardEnhancements = new WeakMap();
+
+/* =========================
+   STORAGE
+========================= */
+
+const STORAGE_KEY = "gloomhaven_enhancements";
+
+const getStorage = () =>
+  JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+const setStorage = data =>
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+const getCardKey = card =>
+  `${card.class}|${card.name}|${card.level}`;
+
+/* =========================
+   LOAD DATA
+========================= */
 
 Promise.all([
   fetch("data/cards.json").then(r => r.json()),
@@ -52,6 +79,10 @@ Promise.all([
     classListEl.appendChild(li);
   });
 });
+
+/* =========================
+   UI FLOW
+========================= */
 
 function showCards(classId, className) {
   contentTitleEl.textContent = `${className} Cards`;
@@ -70,17 +101,14 @@ function showCards(classId, className) {
 
 function showCard(card) {
   currentCard = card;
+
+  usedSlots = new WeakMap();
+  cardEnhancements.set(card, []);
+
   loadCardState(card);
-  
-  if (!cardEnhancements.has(card)) {
-    cardEnhancements.set(card, []);
-  }
 
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = `${card.name} (Level ${card.level})`;
-
-  topActionsEl.innerHTML = "";
-  bottomActionsEl.innerHTML = "";
 
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
   costOutputEl.textContent = "";
@@ -92,159 +120,99 @@ function showCard(card) {
   renderCardPreview(card);
 }
 
+/* =========================
+   ACTION RENDER
+========================= */
+
 function renderActions(actions, container) {
-  actions.forEach(action => {
-    if (!action.enhanceable || !action.enhancement_slots) return;
+  container.innerHTML = "";
+
+  actions.forEach((action, index) => {
+    if (!action.enhanceable) return;
 
     const row = document.createElement("div");
     row.className = "action-row";
 
     const btn = document.createElement("button");
-    const symbols = action.enhancement_slots
-      .map(s => SLOT_SYMBOLS[s] || "")
-      .join(" ");
+    btn.textContent = `${action.enhancement_slots
+      .map(s => SLOT_SYMBOLS[s])
+      .join(" ")} ${action.type.toUpperCase()}`;
 
-    btn.textContent = `${symbols} ${action.type.toUpperCase()}`;
     btn.onclick = () => selectAction(action);
 
-    const slots = document.createElement("div");
-    slots.className = "slots";
-
+    const applied = document.createElement("div");
     const used = usedSlots.get(action) || [];
 
-    action.enhancement_slots.forEach((slot, i) => {
-      const s = document.createElement("span");
-      s.textContent = SLOT_ICONS[slot] || "?";
-      if (i < used.length) s.classList.add("used");
-      slots.appendChild(s);
-    });
+    applied.textContent =
+      used.length === 0
+        ? "No enhancements"
+        : used.map(getEnhancementIcon).join(" ");
 
-    const applied = document.createElement("div");
-    applied.className = "applied-enhancements";
-
-    if (used.length === 0) {
-      applied.textContent = "No enhancements applied";
-    } else {
-      used.forEach((e, index) => {
-        const tag = document.createElement("span");
-        tag.textContent = `${getEnhancementIcon(e)} ${e.toUpperCase()}`;
-        tag.onclick = () => removeEnhancement(action, index);
-        applied.appendChild(tag);
-      });
-    }
-
-    row.appendChild(btn);
-    row.appendChild(slots);
-    row.appendChild(applied);
+    row.append(btn, applied);
     container.appendChild(row);
   });
 }
 
+/* =========================
+   SELECT ACTION
+========================= */
+
 function selectAction(action) {
   currentAction = action;
 
-  if (!usedSlots.has(action)) {
-    usedSlots.set(action, []);
-  }
+  if (!usedSlots.has(action)) usedSlots.set(action, []);
 
-  const remaining =
-    action.enhancement_slots.length - usedSlots.get(action).length;
-
-if (remaining <= 0) {
-  enhancementSelectEl.innerHTML = `<option>No slots remaining</option>`;
-  enhancementSelectEl.disabled = true;
-  return;
-}
-
-enhancementSelectEl.disabled = false;
-
-
-  const rules = ACTION_BASE_RULES[action.type];
-  if (!rules) return;
+  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
 
   let allowed = [];
-  action.enhancement_slots.forEach(slot => {
-    if (rules[slot]) allowed.push(...rules[slot]);
+  ACTION_BASE_RULES[action.type] &&
+    action.enhancement_slots.forEach(s => {
+      allowed.push(...(ACTION_BASE_RULES[action.type][s] || []));
+    });
+
+  allowed = applyConditionalFilters(action, [...new Set(allowed)]);
+
+  allowed.forEach(e => {
+    const opt = document.createElement("option");
+    opt.value = e;
+    opt.textContent = e.replace("_", " ").toUpperCase();
+    enhancementSelectEl.appendChild(opt);
   });
-
-  allowed = [...new Set(allowed)];
-  allowed = applyConditionalFilters(action, allowed);
-
-allowed.forEach(e => {
-  const opt = document.createElement("option");
-  opt.value = e;
-
-  // descobrir qual slot libera esse enhancement
-  const slot = action.enhancement_slots.find(s =>
-    ACTION_BASE_RULES[action.type]?.[s]?.includes(e)
-  );
-
-  const slotIcon = SLOT_ICONS[slot] ?? "";
-  opt.textContent = `${slotIcon} ${e.replace("_", " ").toUpperCase()}`;
-opt.title = getEnhancementHelp(e, action.type);
-  enhancementSelectEl.appendChild(opt);
-});
-
 }
 
-enhancementSelectEl.addEventListener("change", () => {
-  if (!currentAction || !currentCard) return;
+/* =========================
+   APPLY ENHANCEMENT
+========================= */
 
+enhancementSelectEl.addEventListener("change", () => {
+  if (!currentAction) return;
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  let base = 0;
+  let cost =
+    enh === "area_hex"
+      ? Math.ceil(200 / (currentAction.hexes || 1))
+      : enhancementCosts[enh]?.single?.["1"];
 
-  // ✅ REGRA ESPECIAL (E3 / “4”)
-  if (enh === "area_hex") {
-    const hexes = currentAction.hexes || 1;
-    base = Math.ceil(200 / hexes);
-  } else {
-    base = enhancementCosts[enh]?.single?.["1"];
-    if (!base) return;
-  }
+  if (!cost) return;
 
-  if (currentAction.multi && !currentAction.loss) base *= 2;
-  if (currentAction.loss) base = Math.ceil(base / 2);
-
-  let total = base;
-  if (currentCard.level > 1) {
-    total += (currentCard.level - 1) * 25;
-  }
+  if (currentAction.multi && !currentAction.loss) cost *= 2;
+  if (currentAction.loss) cost = Math.ceil(cost / 2);
+  if (currentCard.level > 1) cost += (currentCard.level - 1) * 25;
 
   usedSlots.get(currentAction).push(enh);
-  enhancementSelectEl.value = "";
-enhancementSelectEl.blur();
+  cardEnhancements.get(currentCard).push({ enh, cost });
 
-  cardEnhancements.get(currentCard).push({
-    action: currentAction,
-    enhancement: enh,
-    cost: total
-  });
-saveCardState(currentCard);
-
-  costOutputEl.innerHTML = `<strong>Total cost: ${total}g</strong>`;
-
+  saveCardState(currentCard);
   updateTotalCost(currentCard);
   renderActions(currentCard.top, topActionsEl);
   renderActions(currentCard.bottom, bottomActionsEl);
   renderCardPreview(currentCard);
 });
 
-function removeEnhancement(action, index) {
-  const used = usedSlots.get(action);
-  const enh = used[index];
-  used.splice(index, 1);
-
-  const list = cardEnhancements.get(currentCard);
-  const i = list.findIndex(e => e.action === action && e.enhancement === enh);
-  if (i !== -1) list.splice(i, 1);
-
-  updateTotalCost(currentCard);
-  showCard(currentCard);
-  saveCardState(currentCard);
-
-}
+/* =========================
+   PREVIEW + COST
+========================= */
 
 function updateTotalCost(card) {
   const total = (cardEnhancements.get(card) || []).reduce(
@@ -255,16 +223,12 @@ function updateTotalCost(card) {
 }
 
 function renderCardPreview(card) {
-  topPreviewEl.innerHTML = "";
-  bottomPreviewEl.innerHTML = "";
-
   const render = (actions, el) => {
+    el.innerHTML = "";
     actions.forEach(a => {
-      const div = document.createElement("div");
-      div.textContent = `${a.type.toUpperCase()} ${(usedSlots.get(a) || [])
+      el.innerHTML += `${a.type.toUpperCase()} ${(usedSlots.get(a) || [])
         .map(getEnhancementIcon)
-        .join(" ")}`;
-      el.appendChild(div);
+        .join(" ")}<br>`;
     });
   };
 
@@ -272,72 +236,38 @@ function renderCardPreview(card) {
   render(card.bottom, bottomPreviewEl);
 }
 
+/* =========================
+   ICONS
+========================= */
+
 function getEnhancementIcon(e) {
   return {
     attack: "⚔️",
     move: "👣",
     heal: "💚",
-    shield: "🛡️",
-    retaliate: "🔁",
+    jump: "🦘",
     poison: "☠️",
     wound: "🩸",
     curse: "🧿",
-    muddle: "💫",
-    immobilize: "⛓️",
     bless: "✨",
     strengthen: "💪",
     ward: "🛡️+",
-    jump: "🦘",
     area_hex: "⬢",
     elements: "🔥",
     wild_elements: "🌈"
   }[e] || "•";
 }
 
-function getEnhancementHelp(enh, actionType) {
-  const map = {
-    attack: "Adds +1 Attack",
-    heal: "Adds +1 Heal",
-    move: "Adds +1 Move",
-    jump: "Grants Jump",
-    poison: "Applies Poison",
-    wound: "Applies Wound",
-    curse: "Applies Curse",
-    bless: "Applies Bless",
-    strengthen: "Applies Strengthen",
-    ward: "Applies Ward",
-    area_hex: "Adds an extra hex to AoE",
-    elements: "Creates an element",
-    wild_elements: "Creates any element"
-  };
-
-  return map[enh] ?? `Enhancement for ${actionType}`;
-}
-
-const STORAGE_KEY = "gloomhaven_enhancements";
-
-function getStorage() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-}
-
-function setStorage(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function getCardKey(card) {
-  return `${card.class}|${card.name}|${card.level}`;
-}
+/* =========================
+   STORAGE SAVE / LOAD
+========================= */
 
 function saveCardState(card) {
   const store = getStorage();
   const key = getCardKey(card);
 
   store[key] = {
-    enhancements: cardEnhancements.get(card) || [],
-    slots: Array.from(usedSlots.entries()).map(([action, list]) => ({
-      action,
-      list
-    }))
+    enhancements: cardEnhancements.get(card)
   };
 
   setStorage(store);
@@ -345,60 +275,31 @@ function saveCardState(card) {
 
 function loadCardState(card) {
   const store = getStorage();
-  const key = getCardKey(card);
+  const data = store[getCardKey(card)];
+  if (!data) return;
 
-  if (!store[key]) return;
+  cardEnhancements.set(card, data.enhancements);
 
-  const saved = store[key];
-
-  // restaurar enhancements
-  cardEnhancements.set(card, saved.enhancements || []);
-
-  // restaurar slots
-  usedSlots = new WeakMap();
-
-  [...card.top, ...card.bottom].forEach(action => {
-    const match = saved.slots.find(s =>
-      s.action.type === action.type &&
-      s.action.value === action.value
-    );
-
-    if (match) {
-      usedSlots.set(action, [...match.list]);
-    }
+  data.enhancements.forEach(({ enh }, i) => {
+    const action = [...card.top, ...card.bottom][i];
+    if (!usedSlots.has(action)) usedSlots.set(action, []);
+    usedSlots.get(action).push(enh);
   });
-
-  updateTotalCost(card);
 }
 
-resetBtnEl.addEventListener("click", () => {
+/* =========================
+   RESET (F4.1)
+========================= */
+
+resetBtnEl.onclick = () => {
   if (!currentCard) return;
 
-  // limpar enhancements da carta
   cardEnhancements.set(currentCard, []);
+  usedSlots = new WeakMap();
 
-  // limpar slots usados apenas dessa carta
-  [...currentCard.top, ...currentCard.bottom].forEach(action => {
-    usedSlots.delete(action);
-  });
-
-  // remover do localStorage
   const store = getStorage();
-  const key = getCardKey(currentCard);
-  delete store[key];
+  delete store[getCardKey(currentCard)];
   setStorage(store);
 
-  // reset UI
-  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
-  costOutputEl.textContent = "";
-  currentAction = null;
-
-  updateTotalCost(currentCard);
-
-  // re-render completo da carta
-  topActionsEl.innerHTML = "";
-  bottomActionsEl.innerHTML = "";
-  renderActions(currentCard.top, topActionsEl);
-  renderActions(currentCard.bottom, bottomActionsEl);
-  renderCardPreview(currentCard);
-});
+  showCard(currentCard);
+};
