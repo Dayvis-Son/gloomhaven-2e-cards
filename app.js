@@ -27,6 +27,8 @@ const costOutputEl = document.getElementById("cost-output");
 const topPreviewEl = document.getElementById("top-preview");
 const bottomPreviewEl = document.getElementById("bottom-preview");
 
+const resetBtnEl = document.getElementById("reset-card-enhancements");
+
 let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
