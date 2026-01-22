@@ -489,3 +489,52 @@ exportImageBtn.addEventListener("click", async () => {
 
   link.click();
 });
+
+/* =======================
+   F7.1 — EXPORT PDF
+======================= */
+
+const exportPdfBtn = document.getElementById("export-pdf");
+
+exportPdfBtn.addEventListener("click", async () => {
+  if (!currentCard) return;
+
+  const cardEl = document.querySelector(".card-preview");
+  if (!cardEl) {
+    alert("Card preview not found");
+    return;
+  }
+
+  const canvas = await html2canvas(cardEl, {
+    backgroundColor: "#ffffff",
+    scale: 2
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+
+  // Tamanho A4 em mm
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const imgWidth = pageWidth - 40;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    20,
+    20,
+    imgWidth,
+    imgHeight
+  );
+
+  pdf.save(
+    `${currentCard.class}_${currentCard.name}_Lv${currentCard.level}.pdf`
+  );
+});
