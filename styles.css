@@ -192,3 +192,16 @@ button {
   margin-top: 10px;
   font-size: 16px;
 }
+
+button.danger {
+  margin-top: 10px;
+  background: #7b1e1e;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+button.danger:hover {
+  background: #a62828;
+}
