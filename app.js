@@ -538,3 +538,94 @@ exportPdfBtn.addEventListener("click", async () => {
     `${currentCard.class}_${currentCard.name}_Lv${currentCard.level}.pdf`
   );
 });
+
+/* =======================
+   F8 — EXPORT / IMPORT JSON
+======================= */
+
+const exportJsonBtn = document.getElementById("export-json");
+const importJsonBtn = document.getElementById("import-json");
+const importJsonFile = document.getElementById("import-json-file");
+
+/* ---------- EXPORT ---------- */
+exportJsonBtn.addEventListener("click", () => {
+  if (!currentCard) return;
+
+  const data = {
+    card: {
+      class: currentCard.class,
+      name: currentCard.name,
+      level: currentCard.level
+    },
+    enhancements: cardEnhancements.get(currentCard) || [],
+    slots: [...currentCard.top, ...currentCard.bottom].map(action => ({
+      type: action.type,
+      value: action.value,
+      used: usedSlots.get(action) || []
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json"
+  });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentCard.class}_${currentCard.name}_Lv${currentCard.level}.json`;
+  a.click();
+});
+
+/* ---------- IMPORT ---------- */
+importJsonBtn.addEventListener("click", () => {
+  importJsonFile.click();
+});
+
+importJsonFile.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      importCardData(data);
+    } catch {
+      alert("Invalid JSON file");
+    }
+  };
+  reader.readAsText(file);
+});
+
+function importCardData(data) {
+  const card = allCards.find(
+    c =>
+      c.class === data.card.class &&
+      c.name === data.card.name &&
+      c.level === data.card.level
+  );
+
+  if (!card) {
+    alert("Card not found in database");
+    return;
+  }
+
+  // Reset estado
+  cardEnhancements.set(card, []);
+  [...card.top, ...card.bottom].forEach(a => usedSlots.delete(a));
+
+  // Restaurar enhancements
+  cardEnhancements.set(card, data.enhancements || []);
+
+  // Restaurar slots
+  data.slots.forEach(s => {
+    const action = [...card.top, ...card.bottom].find(
+      a => a.type === s.type && a.value === s.value
+    );
+    if (action) {
+      usedSlots.set(action, [...s.used]);
+    }
+  });
+
+  saveCardState(card);
+  showCard(card);
+}
