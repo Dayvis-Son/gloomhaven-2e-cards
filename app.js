@@ -5,7 +5,8 @@ import {
 } from "./data/enhancement-logic.js";
 
 import { validateEnhancement } from "./data/enhancement-validator.js";
-import { hardFilterEnhancements } from "./data/enhancement-hard-filter.js";
+import { hardFilterEnhancementsWithReasons } from "./data/enhancement-hard-filter.js";
+
 
 
 
@@ -144,6 +145,13 @@ function renderActions(actions, container) {
     action.enhancement_slots.forEach((slot, i) => {
       const s = document.createElement("span");
       s.textContent = SLOT_ICONS[slot] || "?";
+      if (action._filteredReasons) {
+  const reasons = Object.values(action._filteredReasons);
+  if (reasons.length > 0) {
+    s.title = "Unavailable enhancements:\n• " + reasons.join("\n• ");
+  }
+}
+
       if (i < used.length) s.classList.add("used");
       slots.appendChild(s);
     });
@@ -205,11 +213,19 @@ function selectAction(action) {
 allowed = applyConditionalFilters(action, allowed);
 
 // 🔒 G2 — HARD FILTER
-allowed = hardFilterEnhancements({
+const used = usedSlots.get(action) || [];
+
+const filtered = hardFilterEnhancementsWithReasons({
   action,
   allowed,
-  used: usedSlots.get(action) || []
+  used
 });
+
+allowed = filtered.allowed;
+
+// 💬 salvar razões globalmente para UI
+action._filteredReasons = filtered.reasons;
+
 
 
   allowed.forEach(e => {
