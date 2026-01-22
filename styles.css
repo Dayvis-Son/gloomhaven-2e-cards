@@ -210,3 +210,13 @@ button.danger:hover {
   border: 2px solid #c0392b;
   background: rgba(192, 57, 43, 0.15);
 }
+
+.validation-error {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #5a1e1e;
+  border: 1px solid #a63a3a;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+}
