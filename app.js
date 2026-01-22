@@ -227,6 +227,28 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
+  // 🔒 G1 — VALIDATION
+  const used = usedSlots.get(currentAction) || [];
+
+  const errors = validateEnhancement({
+    action: currentAction,
+    enhancement: enh,
+    usedEnhancements: used,
+    cardLevel: currentCard.level
+  });
+
+  if (errors.length > 0) {
+    costOutputEl.innerHTML = `
+      <div class="validation-error">
+        <strong>Invalid enhancement:</strong><br>
+        ${errors.join("<br>")}
+      </div>
+    `;
+    enhancementSelectEl.value = "";
+    return;
+  }
+
+
   let base = 0;
 
   // 🔷 REGRA ESPECIAL HEX (E3 / “4”)
