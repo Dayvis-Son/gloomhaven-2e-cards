@@ -1,52 +1,58 @@
 /* ==========================
-   G2 — HARD FILTER
+   G2 + G3 — HARD FILTER + REASONS
 ========================== */
 
-export function hardFilterEnhancements({
+export function hardFilterEnhancementsWithReasons({
   action,
   allowed,
   used
 }) {
+  const reasons = {};
   let result = [...allowed];
 
-  // 1️⃣ LOSS restrictions
+  function remove(enh, reason) {
+    if (result.includes(enh)) {
+      reasons[enh] = reason;
+      result = result.filter(e => e !== enh);
+    }
+  }
+
+  // 1️⃣ LOSS
   if (action.loss) {
-    result = result.filter(e =>
-      !["jump", "teleport", "area_hex"].includes(e)
+    ["jump", "teleport", "area_hex"].forEach(e =>
+      remove(e, "Not allowed on LOSS actions")
     );
   }
 
-  // 2️⃣ Element vs Wild Element
+  // 2️⃣ Element vs Wild
   if (used.includes("elements")) {
-    result = result.filter(e => e !== "wild_elements");
+    remove("wild_elements", "Element already applied");
   }
 
   if (used.includes("wild_elements")) {
-    result = result.filter(e => e !== "elements");
+    remove("elements", "Wild element already applied");
   }
 
-  // 3️⃣ No duplicates (hard rules)
-  const noDuplicate = [
-    "jump",
-    "teleport",
-    "area_hex",
-    "elements",
-    "wild_elements"
-  ];
+  // 3️⃣ No duplicates
+  ["jump", "teleport", "area_hex", "elements", "wild_elements"].forEach(e => {
+    if (used.includes(e)) {
+      remove(e, "Cannot be applied more than once");
+    }
+  });
 
-  result = result.filter(e =>
-    !(noDuplicate.includes(e) && used.includes(e))
-  );
-
-  // 4️⃣ Teleport special case
+  // 4️⃣ Teleport special rule
   if (action.type === "teleport") {
-    result = result.filter(e => e === "teleport");
+    result.forEach(e => {
+      if (e !== "teleport") {
+        remove(e, "Teleport only allows +1");
+      }
+    });
   }
 
-  // 5️⃣ Area Hex only if AoE exists
+  // 5️⃣ AoE only
   if (!action.hexes || action.hexes < 1) {
-    result = result.filter(e => e !== "area_hex");
+    remove("area_hex", "Only available for AoE actions");
   }
 
-  return result;
+  return { allowed: result, reasons };
 }
