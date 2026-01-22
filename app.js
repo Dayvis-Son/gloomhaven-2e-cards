@@ -223,3 +223,29 @@ function removeEnhancement(action, index) {
   // re-render card to refresh slots + list
   showCard(currentCard);
 }
+
+function getEnhancementIcon(enh) {
+  if (enh === "attack") return "⚔️";
+  if (enh === "move") return "👣";
+  if (enh === "heal") return "💚";
+  if (enh === "shield") return "🛡️";
+  if (enh === "retaliate") return "🔁";
+
+  if (enh === "poison") return "☠️";
+  if (enh === "wound") return "🩸";
+  if (enh === "curse") return "🧿";
+  if (enh === "muddle") return "💫";
+  if (enh === "immobilize") return "⛓️";
+
+  if (enh === "bless") return "✨";
+  if (enh === "strengthen") return "💪";
+  if (enh === "ward") return "🛡️+";
+
+  if (enh === "jump") return "🦘";
+  if (enh === "area_hex") return "⬢";
+
+  if (enh === "elements") return "🔥❄️💨🌱✨🌑";
+  if (enh === "wild_elements") return "🌈";
+
+  return "•";
+}
