@@ -68,7 +68,8 @@ function showCards(classId, className) {
 
 function showCard(card) {
   currentCard = card;
-
+  loadCardState(card);
+  
   if (!cardEnhancements.has(card)) {
     cardEnhancements.set(card, []);
   }
@@ -218,6 +219,7 @@ enhancementSelectEl.blur();
     enhancement: enh,
     cost: total
   });
+saveCardState(currentCard);
 
   costOutputEl.innerHTML = `<strong>Total cost: ${total}g</strong>`;
 
@@ -238,6 +240,8 @@ function removeEnhancement(action, index) {
 
   updateTotalCost(currentCard);
   showCard(currentCard);
+  saveCardState(currentCard);
+
 }
 
 function updateTotalCost(card) {
@@ -306,4 +310,61 @@ function getEnhancementHelp(enh, actionType) {
   };
 
   return map[enh] ?? `Enhancement for ${actionType}`;
+}
+
+const STORAGE_KEY = "gloomhaven_enhancements";
+
+function getStorage() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+}
+
+function setStorage(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getCardKey(card) {
+  return `${card.class}|${card.name}|${card.level}`;
+}
+
+function saveCardState(card) {
+  const store = getStorage();
+  const key = getCardKey(card);
+
+  store[key] = {
+    enhancements: cardEnhancements.get(card) || [],
+    slots: Array.from(usedSlots.entries()).map(([action, list]) => ({
+      action,
+      list
+    }))
+  };
+
+  setStorage(store);
+}
+
+function loadCardState(card) {
+  const store = getStorage();
+  const key = getCardKey(card);
+
+  if (!store[key]) return;
+
+  const saved = store[key];
+
+  // restaurar enhancements
+  cardEnhancements.set(card, saved.enhancements || []);
+
+  // restaurar slots
+  usedSlots = new WeakMap();
+
+  [...card.top, ...card.bottom].forEach(action => {
+    const match = saved.slots.find(s =>
+      s.action.type === action.type &&
+      s.action.value === action.value
+    );
+
+    if (match) {
+      usedSlots.set(action, [...match.list]);
+    }
+  });
+
+  updateTotalCost(card);
 }
