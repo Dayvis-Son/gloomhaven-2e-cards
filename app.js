@@ -262,3 +262,13 @@ function getEnhancementIcon(enh) {
 
   return "•";
 }
+
+function updateTotalCost(card) {
+  const list = cardEnhancements.get(card) || [];
+  const total = list.reduce((sum, e) => sum + e.cost, 0);
+
+  const el = document.getElementById("card-total-cost");
+  if (el) {
+    el.textContent = `${total}g`;
+  }
+}
