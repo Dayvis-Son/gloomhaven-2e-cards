@@ -82,8 +82,14 @@ function renderActions(actions, container) {
     const row = document.createElement("div");
     row.className = "action-row";
 
-    const btn = document.createElement("button");
-    btn.textContent = action.type.toUpperCase();
+const btn = document.createElement("button");
+
+const symbols = action.enhancement_slots
+  .map(s => SLOT_SYMBOLS[s] || "")
+  .join(" ");
+
+btn.textContent = `${symbols} ${action.type.toUpperCase()}`;
+
     btn.onclick = () => selectAction(action);
 
     const slots = document.createElement("div");
