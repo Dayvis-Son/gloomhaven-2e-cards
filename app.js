@@ -37,7 +37,7 @@ const bottomPreviewEl = document.getElementById("bottom-preview");
 const cardTotalEl = document.getElementById("card-total-cost");
 
 /* =========================
-   SLOT TOOLTIP RULES
+   SLOT TOOLTIPS
 ========================= */
 
 const SLOT_TOOLTIPS = {
@@ -151,7 +151,6 @@ function selectAction(action) {
 
   slots.forEach((slotType, index) => {
     if (used[index]) return;
-
     const possible = rules[slotType];
     if (possible) allowed.push(...possible);
   });
@@ -159,7 +158,7 @@ function selectAction(action) {
   allowed = [...new Set(allowed)];
   allowed = applyConditionalFilters(action, allowed);
 
-  if (allowed.length === 0) {
+  if (!allowed.length) {
     const opt = document.createElement("option");
     opt.textContent = "No available slots";
     opt.disabled = true;
@@ -176,7 +175,7 @@ function selectAction(action) {
 }
 
 /* =========================
-   APPLY ENHANCEMENT
+   APPLY ENHANCEMENT (WITH FX)
 ========================= */
 
 enhancementSelectEl.addEventListener("change", () => {
@@ -211,10 +210,12 @@ enhancementSelectEl.addEventListener("change", () => {
 
   renderCardPreview(currentCard);
   updateTotalCost(currentCard);
+
+  highlightLastAppliedSlot();
 });
 
 /* =========================
-   PREVIEW (WITH TOOLTIPS)
+   PREVIEW (WITH ANIMATION)
 ========================= */
 
 function renderCardPreview(card) {
@@ -246,11 +247,11 @@ function renderCardPreview(card) {
 
         if (applied[index]) {
           slot.textContent = getEnhancementIcon(applied[index]);
-          slot.style.cursor = "pointer";
+          slot.classList.add("slot-filled");
           slot.onclick = () => removeEnhancement(action, index);
         } else {
           slot.textContent = SLOT_ICONS[slotType];
-          slot.style.opacity = 0.4;
+          slot.classList.add("slot-empty");
         }
 
         slotBox.appendChild(slot);
@@ -264,6 +265,19 @@ function renderCardPreview(card) {
 
   render(card.top, topPreviewEl);
   render(card.bottom, bottomPreviewEl);
+}
+
+/* =========================
+   VISUAL FX
+========================= */
+
+function highlightLastAppliedSlot() {
+  const slots = document.querySelectorAll(".slot-filled");
+  const last = slots[slots.length - 1];
+  if (!last) return;
+
+  last.classList.add("slot-just-added");
+  setTimeout(() => last.classList.remove("slot-just-added"), 600);
 }
 
 /* =========================
