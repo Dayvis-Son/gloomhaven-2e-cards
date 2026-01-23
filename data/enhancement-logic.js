@@ -3,33 +3,46 @@
 export const SLOT_ICONS = {
   square: "⬜",
   circle: "⚪",
-  triangle: "🔺",
-  triangle_plus: "🔺➕",
+  diamond: "🔷",
+  diamond_plus: "🔷➕",
   hex: "⬢"
 };
 
+/**
+ * SLOT MEANINGS (oficial):
+ * square        = +1 no valor da ação existente
+ * circle        = elementos
+ * diamond       = circle + status negativos
+ * diamond_plus  = circle + status positivos
+ */
 export const ACTION_BASE_RULES = {
   attack: {
     square: ["attack"],
-    circle: ["attack", "elements", "wild_elements"],
-    triangle: ["poison", "wound", "curse", "muddle", "immobilize"],
-    triangle_plus: ["bless", "strengthen", "ward"]
+    circle: ["elements", "wild_elements"],
+    diamond: [
+      "poison",
+      "wound",
+      "curse",
+      "muddle",
+      "immobilize"
+    ],
+    diamond_plus: ["bless", "strengthen", "ward"]
   },
 
   move: {
-    square: ["move", "jump"],
-    circle: ["move", "jump", "elements", "wild_elements"]
+    square: ["move"],
+    circle: ["jump", "elements", "wild_elements"]
   },
 
   heal: {
     square: ["heal"],
-    circle: ["heal", "elements", "wild_elements"],
-    triangle_plus: ["bless", "strengthen", "ward"]
+    circle: ["elements", "wild_elements"],
+    diamond_plus: ["bless", "strengthen", "ward"]
   },
 
   teleport: {
     square: ["move"],
-    circle: ["move", "elements", "wild_elements"]
+    circle: ["elements", "wild_elements"]
   },
 
   range: {
@@ -46,11 +59,33 @@ export const ACTION_BASE_RULES = {
 
   retaliate: {
     square: ["retaliate"],
-    triangle_plus: ["bless", "strengthen", "ward"]
+    diamond_plus: ["bless", "strengthen", "ward"]
+  },
+
+  /**
+   * Push / Pull / Pierce
+   * Só aparecem se a ação já existir na carta
+   * Square = +1 no valor
+   */
+  push: {
+    square: ["push"]
+  },
+
+  pull: {
+    square: ["pull"]
+  },
+
+  pierce: {
+    square: ["pierce"]
   },
 
   summon_stat: {
-    square: ["summon_hp", "summon_atk", "summon_move", "summon_range"]
+    square: [
+      "summon_hp",
+      "summon_attack",
+      "summon_move",
+      "summon_range"
+    ]
   },
 
   area: {
@@ -64,37 +99,21 @@ export const ACTION_BASE_RULES = {
 export function applyConditionalFilters(action, enhancements) {
   let result = [...enhancements];
 
-  // 🚫 Attack nunca pode ter heal, move ou jump
-  if (action.type === "attack") {
-    result = result.filter(
-      e => !["heal", "move", "jump"].includes(e)
-    );
-  }
-
-  // 🚫 Move nunca pode ter attack ou heal
-  if (action.type === "move") {
-    result = result.filter(
-      e => !["attack", "heal"].includes(e)
-    );
-  }
-
-  // 🚫 Heal só pode ser heal + bônus positivos
-  if (action.type === "heal") {
-    result = result.filter(
-      e =>
-        e === "heal" ||
-        ["bless", "strengthen", "ward", "elements", "wild_elements"].includes(e)
-    );
-  }
-
-  // 🚫 Teleport nunca pode ter jump
+  // 🚫 Teleport nunca pode Jump
   if (action.type === "teleport") {
     result = result.filter(e => e !== "jump");
   }
 
-  // 🚫 Jump se a ação já tiver jump base
+  // 🚫 Não permitir Jump se já houver Jump base
   if (action.jump === true) {
     result = result.filter(e => e !== "jump");
+  }
+
+  // 🚫 Push / Pull / Pierce nunca podem ser adicionados a outra ação
+  if (!["push", "pull", "pierce"].includes(action.type)) {
+    result = result.filter(
+      e => !["push", "pull", "pierce"].includes(e)
+    );
   }
 
   return result;
