@@ -1,34 +1,35 @@
 {
-  "attack": { "slot": "circle" },
-  "range": { "slot": "circle" },
-  "move": { "slot": "circle" },
-  "heal": { "slot": "circle" },
-  "shield": { "slot": "circle" },
-  "retaliate": { "slot": "circle" },
+  "attack":        { "slot": "square" },
+  "move":          { "slot": "square" },
+  "heal":          { "slot": "square" },
+  "range":         { "slot": "square" },
+  "target":        { "slot": "square" },
+  "shield":        { "slot": "square" },
+  "retaliate":     { "slot": "square" },
 
-  "poison": { "slot": "square" },
-  "wound": { "slot": "square" },
-  "immobilize": { "slot": "square" },
-  "muddle": { "slot": "square" },
-  "curse": { "slot": "square" },
-  "bless": { "slot": "square" },
-  "strengthen": { "slot": "square" },
+  "push":          { "slot": "square" },
+  "pull":          { "slot": "square" },
+  "pierce":        { "slot": "square" },
 
-  "push": { "slot": "triangle" },
-  "pull": { "slot": "triangle" },
-  "pierce": { "slot": "triangle" },
+  "jump":          { "slot": "square" },
 
-  "target": { "slot": "triangle_plus" },
-
-  "elements": { "slot": "circle" },
+  "elements":      { "slot": "circle" },
   "wild_elements": { "slot": "circle" },
 
-  "area_hex": { "slot": "hex" },
+  "poison":        { "slot": "diamond" },
+  "wound":         { "slot": "diamond" },
+  "muddle":        { "slot": "diamond" },
+  "curse":         { "slot": "diamond" },
+  "immobilize":    { "slot": "diamond" },
 
-  "jump": { "slot": "circle" },
+  "bless":         { "slot": "diamond_plus" },
+  "strengthen":    { "slot": "diamond_plus" },
+  "ward":          { "slot": "diamond_plus" },
 
-  "summon_hp": { "slot": "circle" },
-  "summon_attack": { "slot": "circle" },
-  "summon_move": { "slot": "circle" },
-  "summon_range": { "slot": "circle" }
+  "area_hex":      { "slot": "hex" },
+
+  "summon_hp":     { "slot": "square" },
+  "summon_attack": { "slot": "square" },
+  "summon_move":   { "slot": "square" },
+  "summon_range":  { "slot": "square" }
 }
