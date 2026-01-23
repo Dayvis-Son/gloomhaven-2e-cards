@@ -3,23 +3,16 @@
 export const SLOT_ICONS = {
   square: "⬜",
   circle: "⚪",
-  diamond: "🔷",
-  diamond_plus: "🔷➕",
+  diamond: "◆",
+  diamond_plus: "◆➕",
   hex: "⬢"
 };
 
-/**
- * Regras base:
- * - Square = +1 do próprio atributo
- * - Circle = elementos
- * - Diamond = circle + status negativos
- * - Diamond+ = circle + status positivos
- */
 export const ACTION_BASE_RULES = {
   attack: {
     square: ["attack"],
     circle: ["elements", "wild_elements"],
-    diamond: ["poison", "wound", "muddle", "curse", "immobilize"],
+    diamond: ["poison", "wound", "curse", "muddle", "immobilize"],
     diamond_plus: ["bless", "strengthen", "ward"]
   },
 
@@ -51,6 +44,7 @@ export const ACTION_BASE_RULES = {
     diamond_plus: ["bless", "strengthen", "ward"]
   },
 
+  // ações base que só recebem +1
   push: {
     square: ["push"]
   },
@@ -63,13 +57,8 @@ export const ACTION_BASE_RULES = {
     square: ["pierce"]
   },
 
-  summon_stat: {
-    square: [
-      "summon_hp",
-      "summon_attack",
-      "summon_move",
-      "summon_range"
-    ]
+  summon: {
+    square: ["summon_hp", "summon_attack", "summon_move", "summon_range"]
   },
 
   area: {
@@ -78,35 +67,19 @@ export const ACTION_BASE_RULES = {
 };
 
 /**
- * Filtros condicionais (hard rules finais)
+ * Filtros finais (hard rules)
  */
 export function applyConditionalFilters(action, enhancements) {
   let result = [...enhancements];
 
-  // Attack não pode receber upgrade de Move / Heal / Jump
-  if (action.type === "attack") {
+  // Push / Pull / Pierce nunca podem ser adicionados a outras ações
+  if (!["push", "pull", "pierce"].includes(action.type)) {
     result = result.filter(
-      e => !["move", "heal", "jump"].includes(e)
+      e => !["push", "pull", "pierce"].includes(e)
     );
   }
 
-  // Move não pode receber Attack / Heal
-  if (action.type === "move") {
-    result = result.filter(
-      e => !["attack", "heal"].includes(e)
-    );
-  }
-
-  // Heal só aceita heal + bônus positivos
-  if (action.type === "heal") {
-    result = result.filter(
-      e =>
-        e === "heal" ||
-        ["bless", "strengthen", "ward", "elements", "wild_elements"].includes(e)
-    );
-  }
-
-  // Jump não pode ser aplicado se a ação já tem jump base
+  // Jump não pode se a ação já tiver jump
   if (action.jump === true) {
     result = result.filter(e => e !== "jump");
   }
