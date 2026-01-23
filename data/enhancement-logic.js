@@ -9,8 +9,11 @@ export const SLOT_ICONS = {
 };
 
 /**
- * ACTION_BASE_RULES
- * Define O QUE cada símbolo libera por tipo de ação
+ * Regras base:
+ * - Square = +1 do próprio atributo
+ * - Circle = elementos
+ * - Diamond = circle + status negativos
+ * - Diamond+ = circle + status positivos
  */
 export const ACTION_BASE_RULES = {
   attack: {
@@ -61,7 +64,12 @@ export const ACTION_BASE_RULES = {
   },
 
   summon_stat: {
-    square: ["summon_hp", "summon_attack", "summon_move", "summon_range"]
+    square: [
+      "summon_hp",
+      "summon_attack",
+      "summon_move",
+      "summon_range"
+    ]
   },
 
   area: {
@@ -70,43 +78,35 @@ export const ACTION_BASE_RULES = {
 };
 
 /**
- * HARD RULES
- * Filtros finais que nunca podem ser quebrados
+ * Filtros condicionais (hard rules finais)
  */
 export function applyConditionalFilters(action, enhancements) {
   let result = [...enhancements];
 
-  // 🚫 Attack nunca recebe Move, Heal ou Jump
+  // Attack não pode receber upgrade de Move / Heal / Jump
   if (action.type === "attack") {
     result = result.filter(
       e => !["move", "heal", "jump"].includes(e)
     );
   }
 
-  // 🚫 Move nunca recebe Attack ou Heal
+  // Move não pode receber Attack / Heal
   if (action.type === "move") {
     result = result.filter(
       e => !["attack", "heal"].includes(e)
     );
   }
 
-  // 🚫 Heal só recebe Heal, elementos e buffs positivos
+  // Heal só aceita heal + bônus positivos
   if (action.type === "heal") {
     result = result.filter(
       e =>
         e === "heal" ||
-        ["elements", "wild_elements", "bless", "strengthen", "ward"].includes(e)
+        ["bless", "strengthen", "ward", "elements", "wild_elements"].includes(e)
     );
   }
 
-  // 🚫 Push / Pull / Pierce nunca podem ser adicionados a outras ações
-  if (!["push", "pull", "pierce"].includes(action.type)) {
-    result = result.filter(
-      e => !["push", "pull", "pierce"].includes(e)
-    );
-  }
-
-  // 🚫 Jump não aparece se a ação já tiver Jump base
+  // Jump não pode ser aplicado se a ação já tem jump base
   if (action.jump === true) {
     result = result.filter(e => e !== "jump");
   }
