@@ -1,7 +1,6 @@
 import {
   ACTION_BASE_RULES,
-  applyConditionalFilters,
-  SLOT_ICONS
+  applyConditionalFilters
 } from "./data/enhancement-logic.js";
 
 /* =========================
@@ -34,6 +33,7 @@ const costOutputEl = document.getElementById("cost-output");
 
 const topPreviewEl = document.getElementById("top-preview");
 const bottomPreviewEl = document.getElementById("bottom-preview");
+const cardTotalEl = document.getElementById("card-total-cost");
 
 /* =========================
    LOAD DATA
@@ -92,6 +92,7 @@ function showCard(card) {
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
   renderCardPreview(card);
+  updateTotalCost(card);
 }
 
 /* =========================
@@ -152,10 +153,11 @@ function selectAction(action) {
 
 enhancementSelectEl.addEventListener("change", () => {
   if (!currentAction || !currentCard) return;
+
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  let cost = enhancementCosts[enh]?.single?.["1"];
+  const cost = enhancementCosts[enh]?.single?.["1"];
   if (!cost) return;
 
   usedSlots.get(currentAction).push(enh);
@@ -170,10 +172,11 @@ enhancementSelectEl.addEventListener("change", () => {
   costOutputEl.innerHTML = `<strong>Cost: ${cost}g</strong>`;
 
   renderCardPreview(currentCard);
+  updateTotalCost(currentCard);
 });
 
 /* =========================
-   PREVIEW (⭐ CORE DA ETAPA 10)
+   PREVIEW + COST BREAKDOWN
 ========================= */
 
 function renderCardPreview(card) {
@@ -183,23 +186,33 @@ function renderCardPreview(card) {
   const render = (actions, el) => {
     actions.forEach(action => {
       const base = action.value ?? 0;
-      const applied = (usedSlots.get(action) || []);
+      const applied = usedSlots.get(action) || [];
 
-      // conta upgrades +1
       const plus = applied.filter(e =>
-        ["attack","move","heal","range","target","shield","retaliate","push","pull","pierce",
+        ["attack","move","heal","range","target","shield","retaliate",
+         "push","pull","pierce",
          "summon_hp","summon_move","summon_attack","summon_range"].includes(e)
       ).length;
 
       const finalValue = base + plus;
+
+      const costs = applied.map(e =>
+        enhancementCosts[e]?.single?.["1"] ?? 0
+      );
+
+      const costText =
+        costs.length > 0
+          ? `(+${costs.join("g +")}g)`
+          : "";
 
       const div = document.createElement("div");
       div.className = "action-preview";
 
       div.innerHTML = `
         <span>${action.type.toUpperCase()}</span>
-        <span class="value">${base} → ${finalValue}</span>
-        <span class="icons">${applied.map(getEnhancementIcon).join(" ")}</span>
+        <span>${base} → ${finalValue}</span>
+        <span>${applied.map(getEnhancementIcon).join(" ")}</span>
+        <span style="opacity:.7">${costText}</span>
       `;
 
       el.appendChild(div);
@@ -208,6 +221,17 @@ function renderCardPreview(card) {
 
   render(card.top, topPreviewEl);
   render(card.bottom, bottomPreviewEl);
+}
+
+/* =========================
+   TOTAL COST
+========================= */
+
+function updateTotalCost(card) {
+  const total = (cardEnhancements.get(card) || [])
+    .reduce((s, e) => s + e.cost, 0);
+
+  cardTotalEl.textContent = `${total}g`;
 }
 
 /* =========================
