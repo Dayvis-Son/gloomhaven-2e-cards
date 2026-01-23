@@ -176,7 +176,7 @@ enhancementSelectEl.addEventListener("change", () => {
 });
 
 /* =========================
-   PREVIEW + COST BREAKDOWN
+   PREVIEW + REMOVAL
 ========================= */
 
 function renderCardPreview(card) {
@@ -188,34 +188,43 @@ function renderCardPreview(card) {
       const base = action.value ?? 0;
       const applied = usedSlots.get(action) || [];
 
-      const plus = applied.filter(e =>
-        ["attack","move","heal","range","target","shield","retaliate",
-         "push","pull","pierce",
-         "summon_hp","summon_move","summon_attack","summon_range"].includes(e)
-      ).length;
-
+      const plus = applied.filter(isPlusOneEnhancement).length;
       const finalValue = base + plus;
+
+      const row = document.createElement("div");
+      row.className = "action-preview";
+
+      const label = document.createElement("span");
+      label.textContent = `${action.type.toUpperCase()} ${base} → ${finalValue}`;
+
+      const enhBox = document.createElement("span");
+
+      applied.forEach((enh, index) => {
+        const icon = document.createElement("span");
+        icon.textContent = getEnhancementIcon(enh);
+        icon.style.cursor = "pointer";
+        icon.title = "Click to remove";
+
+        icon.onclick = () => {
+          removeEnhancement(action, index);
+        };
+
+        enhBox.appendChild(icon);
+      });
 
       const costs = applied.map(e =>
         enhancementCosts[e]?.single?.["1"] ?? 0
       );
 
-      const costText =
-        costs.length > 0
-          ? `(+${costs.join("g +")}g)`
-          : "";
+      const costText = document.createElement("span");
+      costText.style.opacity = ".6";
+      costText.textContent =
+        costs.length > 0 ? ` (+${costs.join("g +")}g)` : "";
 
-      const div = document.createElement("div");
-      div.className = "action-preview";
-
-      div.innerHTML = `
-        <span>${action.type.toUpperCase()}</span>
-        <span>${base} → ${finalValue}</span>
-        <span>${applied.map(getEnhancementIcon).join(" ")}</span>
-        <span style="opacity:.7">${costText}</span>
-      `;
-
-      el.appendChild(div);
+      row.appendChild(label);
+      row.appendChild(enhBox);
+      row.appendChild(costText);
+      el.appendChild(row);
     });
   };
 
@@ -224,7 +233,27 @@ function renderCardPreview(card) {
 }
 
 /* =========================
-   TOTAL COST
+   REMOVE ENHANCEMENT
+========================= */
+
+function removeEnhancement(action, index) {
+  const used = usedSlots.get(action);
+  const enh = used[index];
+
+  used.splice(index, 1);
+
+  const list = cardEnhancements.get(currentCard);
+  const i = list.findIndex(
+    e => e.action === action && e.enhancement === enh
+  );
+  if (i !== -1) list.splice(i, 1);
+
+  renderCardPreview(currentCard);
+  updateTotalCost(currentCard);
+}
+
+/* =========================
+   TOTAL
 ========================= */
 
 function updateTotalCost(card) {
@@ -235,8 +264,16 @@ function updateTotalCost(card) {
 }
 
 /* =========================
-   ICONS
+   HELPERS
 ========================= */
+
+function isPlusOneEnhancement(e) {
+  return [
+    "attack","move","heal","range","target","shield","retaliate",
+    "push","pull","pierce",
+    "summon_hp","summon_move","summon_attack","summon_range"
+  ].includes(e);
+}
 
 function getEnhancementIcon(e) {
   return {
