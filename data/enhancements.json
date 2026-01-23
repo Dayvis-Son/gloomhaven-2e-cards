@@ -2,26 +2,28 @@
   "attack": { "single": { "1": 50 } },
   "move": { "single": { "1": 30 } },
   "heal": { "single": { "1": 30 } },
+
   "range": { "single": { "1": 30 } },
   "target": { "single": { "1": 75 } },
+  "pierce": { "single": { "1": 30 } },
+
   "shield": { "single": { "1": 80 } },
   "retaliate": { "single": { "1": 60 } },
+
+  "push": { "single": { "1": 30 } },
+  "pull": { "single": { "1": 20 } },
+
+  "jump": { "single": { "1": 60 } },
 
   "poison": { "single": { "1": 50 } },
   "wound": { "single": { "1": 75 } },
   "muddle": { "single": { "1": 50 } },
-  "immobilize": { "single": { "1": 150 } },
   "curse": { "single": { "1": 150 } },
+  "immobilize": { "single": { "1": 150 } },
 
   "bless": { "single": { "1": 75 } },
   "ward": { "single": { "1": 75 } },
   "strengthen": { "single": { "1": 100 } },
-
-  "push": { "single": { "1": 30 } },
-  "pull": { "single": { "1": 20 } },
-  "pierce": { "single": { "1": 30 } },
-
-  "jump": { "single": { "1": 60 } },
 
   "elements": { "single": { "1": 100 } },
   "wild_elements": { "single": { "1": 150 } },
