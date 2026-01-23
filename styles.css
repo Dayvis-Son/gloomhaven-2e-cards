@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   background-color: #1e1e1e;
   color: #e0e0e0;
 }
@@ -43,122 +43,26 @@ body {
   padding: 20px;
 }
 
-#card-list {
-  list-style: none;
-  padding: 0;
-}
-
-#card-list li {
-  padding: 8px;
-  border-bottom: 1px solid #333;
-  cursor: pointer;
-}
-
-#card-detail {
-  margin-top: 20px;
-  padding: 12px;
-  background: #252525;
-  border: 1px solid #333;
-}
-
-.card-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.card-half {
-  flex: 1;
-  border: 1px solid #444;
-  padding: 8px;
-}
-
-.action-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.action-row button {
-  cursor: pointer;
-}
-
-.slots span {
-  font-size: 18px;
-  margin-right: 4px;
-}
-
-.slots span.used {
-  opacity: 0.3;
-  filter: grayscale(100%);
-}
-
-.enhancement-panel {
-  margin-top: 16px;
-}
-
-select {
-  background: #1e1e1e;
-  color: #fff;
-  border: 1px solid #444;
-  padding: 4px;
-}
-
-#cost-output {
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-.applied-enhancements {
-  margin-top: 4px;
-  font-size: 13px;
-  color: #cfcfcf;
-}
-
-.applied-enhancements span {
-  display: inline-block;
-  background: #333;
-  border: 1px solid #555;
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-right: 4px;
-  margin-top: 2px;
-}
-
-button {
-  margin: 4px 0;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
-.enhancement-applied span {
-  display: inline-block;
-  margin: 4px;
-  padding: 4px 8px;
-  background: #333;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.enhancement-applied span:hover {
-  background: #555;
-}
+/* =========================
+   CARD PREVIEW (OFICIAL)
+   ========================= */
 
 .card-preview {
   display: flex;
   flex-direction: column;
-  border: 2px solid #444;
-  border-radius: 8px;
-  margin-top: 16px;
-  background: #2b2b2b;
+  border: 3px solid #000;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  max-width: 420px;
 }
 
 .card-half-preview {
-  padding: 12px;
+  padding: 14px 16px;
 }
 
 .card-half-preview.top {
-  background: #f5f5f5;
+  background: #f4f1ea;
   color: #000;
 }
 
@@ -168,24 +72,90 @@ button {
 }
 
 .card-divider {
-  height: 2px;
+  height: 3px;
   background: #000;
 }
 
 .card-half-preview h4 {
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   text-align: center;
+  font-size: 14px;
+  letter-spacing: 1px;
 }
+
+/* =========================
+   ACTION LINE (KEY PART)
+   ========================= */
 
 .action-preview {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
   margin-bottom: 6px;
-  font-size: 14px;
+  font-weight: bold;
 }
 
-.action-preview span.enh {
+.action-preview::before {
+  content: "•";
+  font-size: 12px;
+}
+
+/* value 3 → 4 */
+.action-preview span.value {
   font-weight: bold;
+}
+
+/* icons */
+.action-preview span.icons {
+  font-size: 16px;
+}
+
+/* =========================
+   ACTION LIST (LEFT SIDE)
+   ========================= */
+
+.card-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.card-half {
+  flex: 1;
+  border: 1px solid #444;
+  padding: 10px;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.action-row button {
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* =========================
+   ENHANCEMENT UI
+   ========================= */
+
+.enhancement-panel {
+  margin-top: 16px;
+}
+
+select {
+  background: #1e1e1e;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px;
+}
+
+#cost-output {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 .card-total {
@@ -204,19 +174,4 @@ button.danger {
 
 button.danger:hover {
   background: #a62828;
-}
-
-.invalid-action {
-  border: 2px solid #c0392b;
-  background: rgba(192, 57, 43, 0.15);
-}
-
-.validation-error {
-  margin-top: 8px;
-  padding: 6px 10px;
-  background: #5a1e1e;
-  border: 1px solid #a63a3a;
-  color: #fff;
-  border-radius: 4px;
-  font-size: 13px;
 }
