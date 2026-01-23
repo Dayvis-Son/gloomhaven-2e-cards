@@ -13,8 +13,8 @@ let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
 
-const usedSlots = new WeakMap();          // action → [enhancement]
-const cardEnhancements = new WeakMap();  // card → [{action, enhancement, cost}]
+const usedSlots = new WeakMap();
+const cardEnhancements = new WeakMap();
 
 /* =========================
    DOM
@@ -35,6 +35,18 @@ const costOutputEl = document.getElementById("cost-output");
 const topPreviewEl = document.getElementById("top-preview");
 const bottomPreviewEl = document.getElementById("bottom-preview");
 const cardTotalEl = document.getElementById("card-total-cost");
+
+/* =========================
+   SLOT TOOLTIP RULES
+========================= */
+
+const SLOT_TOOLTIPS = {
+  square: "+1 no valor base da ação",
+  circle: "+1 ou Element",
+  diamond: "+1 ou status negativos",
+  diamond_plus: "+1 ou status positivos",
+  hex: "Área (hex)"
+};
 
 /* =========================
    LOAD DATA
@@ -138,7 +150,7 @@ function selectAction(action) {
   let allowed = [];
 
   slots.forEach((slotType, index) => {
-    if (used[index]) return; // SLOT OCUPADO → IGNORA
+    if (used[index]) return;
 
     const possible = rules[slotType];
     if (possible) allowed.push(...possible);
@@ -175,14 +187,13 @@ enhancementSelectEl.addEventListener("change", () => {
 
   const slots = currentAction.enhancement_slots;
   const used = usedSlots.get(currentAction);
-
   const rules = ACTION_BASE_RULES[currentAction.type];
 
-  const slotIndex = slots.findIndex((slot, i) =>
-    !used[i] && rules[slot]?.includes(enh)
+  const slotIndex = slots.findIndex(
+    (slot, i) => !used[i] && rules[slot]?.includes(enh)
   );
 
-  if (slotIndex === -1) return; // segurança extra
+  if (slotIndex === -1) return;
 
   const cost = enhancementCosts[enh]?.single?.["1"];
   if (!cost) return;
@@ -203,7 +214,7 @@ enhancementSelectEl.addEventListener("change", () => {
 });
 
 /* =========================
-   PREVIEW
+   PREVIEW (WITH TOOLTIPS)
 ========================= */
 
 function renderCardPreview(card) {
@@ -231,11 +242,11 @@ function renderCardPreview(card) {
       slots.forEach((slotType, index) => {
         const slot = document.createElement("span");
         slot.className = "slot";
+        slot.title = SLOT_TOOLTIPS[slotType] || "";
 
         if (applied[index]) {
           slot.textContent = getEnhancementIcon(applied[index]);
           slot.style.cursor = "pointer";
-          slot.title = "Click to remove";
           slot.onclick = () => removeEnhancement(action, index);
         } else {
           slot.textContent = SLOT_ICONS[slotType];
