@@ -1,6 +1,7 @@
 import {
   ACTION_BASE_RULES,
-  applyConditionalFilters
+  applyConditionalFilters,
+  SLOT_ICONS
 } from "./data/enhancement-logic.js";
 
 /* =========================
@@ -176,7 +177,7 @@ enhancementSelectEl.addEventListener("change", () => {
 });
 
 /* =========================
-   PREVIEW + REMOVAL
+   PREVIEW WITH SLOTS
 ========================= */
 
 function renderCardPreview(card) {
@@ -187,6 +188,7 @@ function renderCardPreview(card) {
     actions.forEach(action => {
       const base = action.value ?? 0;
       const applied = usedSlots.get(action) || [];
+      const slots = action.enhancement_slots || [];
 
       const plus = applied.filter(isPlusOneEnhancement).length;
       const finalValue = base + plus;
@@ -197,33 +199,28 @@ function renderCardPreview(card) {
       const label = document.createElement("span");
       label.textContent = `${action.type.toUpperCase()} ${base} → ${finalValue}`;
 
-      const enhBox = document.createElement("span");
+      const slotBox = document.createElement("span");
+      slotBox.className = "slot-box";
 
-      applied.forEach((enh, index) => {
-        const icon = document.createElement("span");
-        icon.textContent = getEnhancementIcon(enh);
-        icon.style.cursor = "pointer";
-        icon.title = "Click to remove";
+      slots.forEach((slotType, index) => {
+        const slot = document.createElement("span");
+        slot.className = "slot";
 
-        icon.onclick = () => {
-          removeEnhancement(action, index);
-        };
+        if (applied[index]) {
+          slot.textContent = getEnhancementIcon(applied[index]);
+          slot.style.cursor = "pointer";
+          slot.title = "Click to remove";
+          slot.onclick = () => removeEnhancement(action, index);
+        } else {
+          slot.textContent = SLOT_ICONS[slotType];
+          slot.style.opacity = 0.4;
+        }
 
-        enhBox.appendChild(icon);
+        slotBox.appendChild(slot);
       });
 
-      const costs = applied.map(e =>
-        enhancementCosts[e]?.single?.["1"] ?? 0
-      );
-
-      const costText = document.createElement("span");
-      costText.style.opacity = ".6";
-      costText.textContent =
-        costs.length > 0 ? ` (+${costs.join("g +")}g)` : "";
-
       row.appendChild(label);
-      row.appendChild(enhBox);
-      row.appendChild(costText);
+      row.appendChild(slotBox);
       el.appendChild(row);
     });
   };
@@ -233,13 +230,12 @@ function renderCardPreview(card) {
 }
 
 /* =========================
-   REMOVE ENHANCEMENT
+   REMOVE
 ========================= */
 
 function removeEnhancement(action, index) {
   const used = usedSlots.get(action);
   const enh = used[index];
-
   used.splice(index, 1);
 
   const list = cardEnhancements.get(currentCard);
