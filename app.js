@@ -1,7 +1,6 @@
 import {
   ACTION_BASE_RULES,
-  applyConditionalFilters,
-  SLOT_ICONS
+  applyConditionalFilters
 } from "./data/enhancement-logic.js";
 
 const classListEl = document.getElementById("class-list");
@@ -143,7 +142,7 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  let base = enhancementCosts[enh]?.single?.["1"];
+  const base = enhancementCosts[enh]?.single?.["1"];
   if (!base) return;
 
   let total = base;
@@ -162,8 +161,6 @@ enhancementSelectEl.addEventListener("change", () => {
 
   updateTotalCost(currentCard);
   renderCardPreview(currentCard);
-  renderActions(currentCard.top, topActionsEl);
-  renderActions(currentCard.bottom, bottomActionsEl);
 
   enhancementSelectEl.value = "";
 });
@@ -178,7 +175,7 @@ function updateTotalCost(card) {
 
 /**
  * =========================
- * PREVIEW (ETAPA 7)
+ * PREVIEW COM VALOR FINAL
  * =========================
  */
 function renderCardPreview(card) {
@@ -189,21 +186,26 @@ function renderCardPreview(card) {
     actions.forEach(action => {
       const enhs = usedSlots.get(action) || [];
 
+      const plusCount = enhs.filter(isPlusOne).length;
+      const baseValue = action.value ?? null;
+
       const div = document.createElement("div");
       div.className = "action-preview";
 
-      const base = document.createElement("span");
-      base.textContent = action.type.toUpperCase();
+      let text = action.type.toUpperCase();
 
-      const enhSpan = document.createElement("span");
-      enhSpan.className = "enh";
+      if (baseValue !== null && plusCount > 0) {
+        text += ` ${baseValue} → ${baseValue + plusCount}`;
+      } else if (baseValue !== null) {
+        text += ` ${baseValue}`;
+      }
 
-      enhSpan.textContent = enhs
-        .map(e => formatEnhancementPreview(action.type, e))
+      const effects = enhs
+        .filter(e => !isPlusOne(e))
+        .map(getEnhancementIcon)
         .join(" ");
 
-      div.appendChild(base);
-      div.appendChild(enhSpan);
+      div.textContent = `${text} ${effects}`;
       el.appendChild(div);
     });
   };
@@ -212,12 +214,8 @@ function renderCardPreview(card) {
   render(card.bottom, bottomPreviewEl);
 }
 
-/**
- * Converte enhancement em preview correto
- * (+1 vs ícone)
- */
-function formatEnhancementPreview(actionType, enh) {
-  const plusOne = [
+function isPlusOne(e) {
+  return [
     "attack",
     "move",
     "heal",
@@ -232,13 +230,7 @@ function formatEnhancementPreview(actionType, enh) {
     "summon_attack",
     "summon_move",
     "summon_range"
-  ];
-
-  if (plusOne.includes(enh)) {
-    return "+1";
-  }
-
-  return getEnhancementIcon(enh);
+  ].includes(e);
 }
 
 function getEnhancementIcon(e) {
@@ -270,7 +262,5 @@ resetBtnEl.addEventListener("click", () => {
   costOutputEl.textContent = "";
 
   updateTotalCost(currentCard);
-  renderActions(currentCard.top, topActionsEl);
-  renderActions(currentCard.bottom, bottomActionsEl);
   renderCardPreview(currentCard);
 });
