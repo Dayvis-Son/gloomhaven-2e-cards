@@ -4,21 +4,12 @@ import {
   SLOT_ICONS
 } from "./data/enhancement-logic.js";
 
-/* =========================
-   ESTADO GLOBAL
-========================= */
-
 let allCards = [];
 let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
 
 const usedSlots = new WeakMap();
-const cardEnhancements = new WeakMap();
-
-/* =========================
-   ELEMENTOS DOM
-========================= */
 
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
@@ -31,24 +22,20 @@ const topActionsEl = document.getElementById("top-actions");
 const bottomActionsEl = document.getElementById("bottom-actions");
 
 const enhancementSelectEl = document.getElementById("enhancement-select");
-const costOutputEl = document.getElementById("cost-output");
 
 const topPreviewEl = document.getElementById("top-preview");
 const bottomPreviewEl = document.getElementById("bottom-preview");
 
 const resetBtnEl = document.getElementById("reset-card-enhancements");
 
-/* =========================
-   LOAD INICIAL
-========================= */
+/* ================= LOAD ================= */
 
 Promise.all([
   fetch("data/cards.json").then(r => r.json()),
   fetch("data/classes.json").then(r => r.json()),
   fetch("data/enhancements.json").then(r => r.json())
-]).then(([cards, classes, costs]) => {
+]).then(([cards, classes]) => {
   allCards = cards;
-  enhancementCosts = costs;
 
   classes.forEach(cls => {
     const li = document.createElement("li");
@@ -58,9 +45,7 @@ Promise.all([
   });
 });
 
-/* =========================
-   LISTAGEM
-========================= */
+/* ================= LIST ================= */
 
 function showCards(classId, className) {
   contentTitleEl.textContent = `${className} Cards`;
@@ -80,36 +65,24 @@ function showCards(classId, className) {
 function showCard(card) {
   currentCard = card;
 
-  if (!cardEnhancements.has(card)) {
-    cardEnhancements.set(card, []);
-  }
-
   cardDetailEl.style.display = "block";
   cardNameEl.textContent = `${card.name} (Level ${card.level})`;
 
   topActionsEl.innerHTML = "";
   bottomActionsEl.innerHTML = "";
 
-  enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
-  costOutputEl.textContent = "";
-
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
-
   renderCardPreview(card);
 }
 
-/* =========================
-   ACTION LIST
-========================= */
+/* ================= ACTION LIST ================= */
 
 function renderActions(actions, container) {
   actions.forEach(action => {
     if (!action.enhancement_slots) return;
 
-    if (!usedSlots.has(action)) {
-      usedSlots.set(action, []);
-    }
+    if (!usedSlots.has(action)) usedSlots.set(action, []);
 
     const row = document.createElement("div");
     row.className = "action-row";
@@ -134,9 +107,7 @@ function renderActions(actions, container) {
   });
 }
 
-/* =========================
-   PREVIEW (PASSO 1)
-========================= */
+/* ================= PREVIEW ================= */
 
 function renderCardPreview(card) {
   topPreviewEl.innerHTML = "";
@@ -152,15 +123,21 @@ function renderPreviewHalf(actions, container) {
     div.className = "action-preview";
 
     const applied = usedSlots.get(action) || [];
+    const grouped = groupEnhancements(applied);
 
     let text = action.type.toUpperCase();
+    if (action.value !== undefined) text += ` ${action.value}`;
 
-    if (action.value !== undefined) {
-      text += ` ${action.value}`;
-    }
-
-    applied.forEach(e => {
-      text += ` ${getEnhancementIcon(e)}(+1)`;
+    grouped.forEach(g => {
+      if (g.type === "jump") {
+        text += " Jump";
+      } else if (g.type === "area_hex") {
+        text += ` ⬢+${g.count}`;
+      } else if (g.isStatus) {
+        text += ` ${getEnhancementIcon(g.type)}`;
+      } else {
+        text += ` +${g.count}`;
+      }
     });
 
     div.textContent = text;
@@ -168,9 +145,31 @@ function renderPreviewHalf(actions, container) {
   });
 }
 
-/* =========================
-   SELEÇÃO DE ACTION
-========================= */
+function groupEnhancements(list) {
+  const map = {};
+
+  list.forEach(e => {
+    if (!map[e]) map[e] = 0;
+    map[e]++;
+  });
+
+  return Object.entries(map).map(([type, count]) => ({
+    type,
+    count,
+    isStatus: [
+      "poison",
+      "wound",
+      "curse",
+      "muddle",
+      "immobilize",
+      "bless",
+      "strengthen",
+      "ward"
+    ].includes(type)
+  }));
+}
+
+/* ================= SELECT ================= */
 
 function selectAction(action) {
   currentAction = action;
@@ -192,17 +191,15 @@ function selectAction(action) {
   allowed.forEach(e => {
     const opt = document.createElement("option");
     opt.value = e;
-    opt.textContent = `${getEnhancementIcon(e)} ${e.toUpperCase()}`;
+    opt.textContent = e.toUpperCase();
     enhancementSelectEl.appendChild(opt);
   });
 }
 
-/* =========================
-   APPLY ENHANCEMENT
-========================= */
+/* ================= APPLY ================= */
 
 enhancementSelectEl.addEventListener("change", () => {
-  if (!currentAction || !currentCard) return;
+  if (!currentAction) return;
 
   const enh = enhancementSelectEl.value;
   if (!enh) return;
@@ -215,9 +212,7 @@ enhancementSelectEl.addEventListener("change", () => {
   renderCardPreview(currentCard);
 });
 
-/* =========================
-   RESET
-========================= */
+/* ================= RESET ================= */
 
 resetBtnEl.addEventListener("click", () => {
   if (!currentCard) return;
@@ -231,17 +226,10 @@ resetBtnEl.addEventListener("click", () => {
   renderCardPreview(currentCard);
 });
 
-/* =========================
-   ICONS
-========================= */
+/* ================= ICONS ================= */
 
 function getEnhancementIcon(e) {
   return {
-    attack: "⚔️",
-    move: "👣",
-    heal: "💚",
-    shield: "🛡️",
-    retaliate: "🔁",
     poison: "☠️",
     wound: "🩸",
     curse: "🧿",
@@ -249,14 +237,7 @@ function getEnhancementIcon(e) {
     immobilize: "⛓️",
     bless: "✨",
     strengthen: "💪",
-    ward: "🛡️+",
-    jump: "🦘",
-    range: "🎯",
-    target: "🎯",
-    push: "➡️",
-    pull: "⬅️",
-    pierce: "🗡️",
-    area_hex: "⬢",
+    ward: "🛡️",
     elements: "🔥",
     wild_elements: "🌈"
   }[e] || "";
