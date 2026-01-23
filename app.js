@@ -13,8 +13,8 @@ let enhancementCosts = {};
 let currentCard = null;
 let currentAction = null;
 
-const usedSlots = new WeakMap();
-const cardEnhancements = new WeakMap();
+const usedSlots = new WeakMap();          // action → [enhancement]
+const cardEnhancements = new WeakMap();  // card → [{action, enhancement, cost}]
 
 /* =========================
    DOM
@@ -127,18 +127,33 @@ function renderActions(actions, container) {
 function selectAction(action) {
   currentAction = action;
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.textContent = "";
 
   const rules = ACTION_BASE_RULES[action.type];
   if (!rules) return;
 
+  const slots = action.enhancement_slots;
+  const used = usedSlots.get(action) || [];
+
   let allowed = [];
 
-  action.enhancement_slots.forEach(slot => {
-    if (rules[slot]) allowed.push(...rules[slot]);
+  slots.forEach((slotType, index) => {
+    if (used[index]) return; // SLOT OCUPADO → IGNORA
+
+    const possible = rules[slotType];
+    if (possible) allowed.push(...possible);
   });
 
   allowed = [...new Set(allowed)];
   allowed = applyConditionalFilters(action, allowed);
+
+  if (allowed.length === 0) {
+    const opt = document.createElement("option");
+    opt.textContent = "No available slots";
+    opt.disabled = true;
+    enhancementSelectEl.appendChild(opt);
+    return;
+  }
 
   allowed.forEach(e => {
     const opt = document.createElement("option");
@@ -158,10 +173,21 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
+  const slots = currentAction.enhancement_slots;
+  const used = usedSlots.get(currentAction);
+
+  const rules = ACTION_BASE_RULES[currentAction.type];
+
+  const slotIndex = slots.findIndex((slot, i) =>
+    !used[i] && rules[slot]?.includes(enh)
+  );
+
+  if (slotIndex === -1) return; // segurança extra
+
   const cost = enhancementCosts[enh]?.single?.["1"];
   if (!cost) return;
 
-  usedSlots.get(currentAction).push(enh);
+  used[slotIndex] = enh;
 
   cardEnhancements.get(currentCard).push({
     action: currentAction,
@@ -177,7 +203,7 @@ enhancementSelectEl.addEventListener("change", () => {
 });
 
 /* =========================
-   PREVIEW WITH SLOTS
+   PREVIEW
 ========================= */
 
 function renderCardPreview(card) {
@@ -236,7 +262,7 @@ function renderCardPreview(card) {
 function removeEnhancement(action, index) {
   const used = usedSlots.get(action);
   const enh = used[index];
-  used.splice(index, 1);
+  used[index] = null;
 
   const list = cardEnhancements.get(currentCard);
   const i = list.findIndex(
