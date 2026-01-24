@@ -7,11 +7,16 @@ import {
 
 let classes = [];
 let cards = [];
-let enhancements = {};
+let enhancementCosts = {};
 
 let selectedClass = null;
 let selectedCard = null;
 let selectedAction = null;
+
+let appliedEnhancements = [];
+let totalCost = 0;
+
+/* -------------------- ELEMENTS -------------------- */
 
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
@@ -25,22 +30,22 @@ const enhancementSelectEl = document.getElementById("enhancement-select");
 const costOutputEl = document.getElementById("cost-output");
 const totalCostEl = document.getElementById("card-total-cost");
 
-let appliedEnhancements = [];
-let totalCost = 0;
+const topPreviewEl = document.getElementById("top-preview");
+const bottomPreviewEl = document.getElementById("bottom-preview");
 
 /* -------------------- LOAD DATA -------------------- */
 
 async function loadData() {
   classes = await fetch("./data/classes.json").then(r => r.json());
   cards = await fetch("./data/cards.json").then(r => r.json());
-  enhancements = await fetch("./data/enhancements.json").then(r => r.json());
+  enhancementCosts = await fetch("./data/enhancements.json").then(r => r.json());
 
   renderClasses();
 }
 
 loadData();
 
-/* -------------------- RENDER CLASSES -------------------- */
+/* -------------------- CLASSES -------------------- */
 
 function renderClasses() {
   classListEl.innerHTML = "";
@@ -54,13 +59,9 @@ function renderClasses() {
 
 function selectClass(classId) {
   selectedClass = classId;
-  renderCards();
-}
-
-/* -------------------- RENDER CARDS -------------------- */
-
-function renderCards() {
   cardListEl.innerHTML = "";
+  cardDetailEl.style.display = "none";
+
   cards
     .filter(c => c.class === selectedClass)
     .forEach(card => {
@@ -71,20 +72,23 @@ function renderCards() {
     });
 }
 
+/* -------------------- CARD -------------------- */
+
 function selectCard(card) {
   selectedCard = card;
   appliedEnhancements = [];
   totalCost = 0;
-  updateTotalCost();
 
   cardNameEl.textContent = card.name;
   cardDetailEl.style.display = "block";
+  updateTotalCost();
 
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
+  renderPreview();
 }
 
-/* -------------------- ACTIONS -------------------- */
+/* -------------------- ACTION LIST -------------------- */
 
 function renderActions(actions, container) {
   container.innerHTML = "";
@@ -99,17 +103,18 @@ function renderActions(actions, container) {
     const slots = document.createElement("span");
     slots.className = "slots";
 
-    if (action.slots) {
-      action.slots.forEach(s => {
-        const icon = document.createElement("span");
-        icon.textContent = SLOT_ICONS[s] ?? s;
-        slots.appendChild(icon);
-      });
-    }
+    (action.slots || []).forEach(s => {
+      const icon = document.createElement("span");
+      icon.textContent = SLOT_ICONS[s] ?? s;
+      slots.appendChild(icon);
+    });
 
     const btn = document.createElement("button");
     btn.textContent = "Enhance";
-    btn.onclick = () => selectAction(action);
+    btn.onclick = () => {
+      selectedAction = action;
+      buildEnhancementOptions();
+    };
 
     row.appendChild(label);
     row.appendChild(slots);
@@ -117,11 +122,6 @@ function renderActions(actions, container) {
 
     container.appendChild(row);
   });
-}
-
-function selectAction(action) {
-  selectedAction = action;
-  buildEnhancementOptions();
 }
 
 /* -------------------- ENHANCEMENTS -------------------- */
@@ -133,31 +133,25 @@ function buildEnhancementOptions() {
   if (!selectedAction) return;
 
   const rules = ACTION_BASE_RULES[selectedAction.type] || {};
-  const allowedByRules = [];
+  const pool = [];
 
   Object.entries(rules).forEach(([slot, list]) => {
-    list.forEach(e => {
-      allowedByRules.push({ enhancement: e, slot });
-    });
+    list.forEach(e => pool.push({ e, slot }));
   });
 
-  const allowedKeys = applyConditionalFilters(
+  const allowed = applyConditionalFilters(
     selectedAction,
-    allowedByRules.map(e => e.enhancement)
+    pool.map(p => p.e)
   );
 
-  const uniqueEnhancements = [
-    ...new Set(allowedByRules.map(e => e.enhancement))
-  ];
-
-  uniqueEnhancements.forEach(enh => {
-    const rule = allowedByRules.find(e => e.enhancement === enh);
+  [...new Set(pool.map(p => p.e))].forEach(enh => {
+    const data = pool.find(p => p.e === enh);
     const opt = document.createElement("option");
 
     opt.value = enh;
-    opt.textContent = `${SLOT_ICONS[rule.slot]} ${enh}`;
+    opt.textContent = `${SLOT_ICONS[data.slot]} ${enh}`;
 
-    if (!allowedKeys.includes(enh)) {
+    if (!allowed.includes(enh)) {
       opt.disabled = true;
       opt.textContent += " (not allowed)";
     }
@@ -166,73 +160,105 @@ function buildEnhancementOptions() {
   });
 }
 
-/* -------------------- COST LOGIC -------------------- */
+/* -------------------- COST & APPLY -------------------- */
 
-function calculateAreaHexCost(baseHexes) {
-  return Math.ceil(200 / baseHexes);
+function areaHexCost(hexes) {
+  return Math.ceil(200 / hexes);
 }
 
 enhancementSelectEl.addEventListener("change", () => {
   costOutputEl.innerHTML = "";
   const enh = enhancementSelectEl.value;
-  if (!enh) return;
+  if (!enh || !selectedAction) return;
 
   if (enh === "area_hex") {
     costOutputEl.innerHTML = `
-      <label>
-        Base hexes:
-        <select id="area-hex-count">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-      </label>
-      <div id="area-hex-cost"></div>
-      <button id="apply-area">Apply</button>
+      Hexes:
+      <select id="hex-count">
+        <option>1</option><option>2</option><option>3</option>
+        <option>4</option><option>5</option>
+      </select>
+      <button id="apply">Apply</button>
+      <div id="hex-cost"></div>
     `;
 
-    const hexSelect = document.getElementById("area-hex-count");
-    const costEl = document.getElementById("area-hex-cost");
-    const applyBtn = document.getElementById("apply-area");
+    const hexSel = document.getElementById("hex-count");
+    const costEl = document.getElementById("hex-cost");
 
-    function update() {
-      costEl.textContent =
-        "Cost: " + calculateAreaHexCost(hexSelect.value) + "g";
-    }
+    const update = () =>
+      (costEl.textContent =
+        "Cost: " + areaHexCost(hexSel.value) + "g");
 
-    hexSelect.onchange = update;
+    hexSel.onchange = update;
     update();
 
-    applyBtn.onclick = () => {
-      const cost = calculateAreaHexCost(hexSelect.value);
-      appliedEnhancements.push("area_hex");
-      totalCost += cost;
+    document.getElementById("apply").onclick = () => {
+      appliedEnhancements.push({
+        action: selectedAction,
+        enhancement: enh,
+        cost: areaHexCost(hexSel.value)
+      });
+      totalCost += areaHexCost(hexSel.value);
       updateTotalCost();
+      renderPreview();
     };
 
     return;
   }
 
-  const cost = enhancements[enh]?.single?.["1"];
-  if (!cost) {
-    costOutputEl.textContent = "No cost data";
-    return;
-  }
+  const cost = enhancementCosts[enh]?.single?.["1"];
+  if (!cost) return;
 
   costOutputEl.innerHTML = `
     Cost: ${cost}g
-    <br />
-    <button id="apply-enh">Apply</button>
+    <button id="apply">Apply</button>
   `;
 
-  document.getElementById("apply-enh").onclick = () => {
-    appliedEnhancements.push(enh);
+  document.getElementById("apply").onclick = () => {
+    appliedEnhancements.push({
+      action: selectedAction,
+      enhancement: enh,
+      cost
+    });
     totalCost += cost;
     updateTotalCost();
+    renderPreview();
   };
 });
+
+/* -------------------- PREVIEW -------------------- */
+
+function renderPreview() {
+  topPreviewEl.innerHTML = "";
+  bottomPreviewEl.innerHTML = "";
+
+  const renderSide = (actions, container) => {
+    actions.forEach(action => {
+      const row = document.createElement("div");
+      row.className = "action-preview";
+
+      const base = document.createElement("span");
+      base.textContent = `${action.type.toUpperCase()} ${action.value ?? ""}`;
+
+      const enh = document.createElement("span");
+      enh.className = "enh";
+
+      const icons = appliedEnhancements
+        .filter(e => e.action === action)
+        .map(e => e.enhancement)
+        .join(" ");
+
+      enh.textContent = icons;
+
+      row.appendChild(base);
+      row.appendChild(enh);
+      container.appendChild(row);
+    });
+  };
+
+  renderSide(selectedCard.top, topPreviewEl);
+  renderSide(selectedCard.bottom, bottomPreviewEl);
+}
 
 /* -------------------- TOTAL -------------------- */
 
@@ -248,6 +274,7 @@ document
     appliedEnhancements = [];
     totalCost = 0;
     updateTotalCost();
+    renderPreview();
     costOutputEl.innerHTML = "";
     enhancementSelectEl.value = "";
   });
