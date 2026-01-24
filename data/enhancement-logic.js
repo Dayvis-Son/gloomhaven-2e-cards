@@ -1,11 +1,11 @@
 // data/enhancement-logic.js
 
 export const SLOT_ICONS = {
-  square: "⬜",          // +1
-  circle: "⚪",          // +1 ou elemento
-  diamond: "🔷",         // tudo do circle + status negativos
-  diamond_plus: "🔷➕",  // tudo do circle + status positivos
-  hex: "⬢"              // área
+  square: "⬜",        // +1 base
+  circle: "⚪",        // +1 + elementos
+  diamond: "🔷",       // círculo + status negativos
+  diamond_plus: "🔷➕", // círculo + status positivos
+  hex: "⬢"
 };
 
 export const ACTION_BASE_RULES = {
@@ -17,8 +17,9 @@ export const ACTION_BASE_RULES = {
   },
 
   move: {
-    square: ["move", "jump"],
-    circle: ["move", "jump", "elements", "wild_elements"]
+    square: ["move"],
+    circle: ["move", "elements", "wild_elements"],
+    diamond_plus: ["jump"]
   },
 
   heal: {
@@ -61,20 +62,8 @@ export const ACTION_BASE_RULES = {
     square: ["pierce"]
   },
 
-  summon_hp: {
-    square: ["summon_hp"]
-  },
-
-  summon_attack: {
-    square: ["summon_attack"]
-  },
-
-  summon_move: {
-    square: ["summon_move"]
-  },
-
-  summon_range: {
-    square: ["summon_range"]
+  summon_stat: {
+    square: ["summon_hp", "summon_attack", "summon_move", "summon_range"]
   },
 
   area: {
@@ -88,35 +77,35 @@ export const ACTION_BASE_RULES = {
 export function applyConditionalFilters(action, enhancements) {
   let result = [...enhancements];
 
-  // Attack nunca pode receber move, heal ou jump
+  // Attack nunca recebe move / heal / jump
   if (action.type === "attack") {
     result = result.filter(
       e => !["move", "heal", "jump"].includes(e)
     );
   }
 
-  // Move nunca pode receber attack ou heal
+  // Move nunca recebe attack / heal
   if (action.type === "move") {
     result = result.filter(
       e => !["attack", "heal"].includes(e)
     );
   }
 
-  // Heal só aceita heal, elementos e status positivos
+  // Heal só aceita bônus positivos
   if (action.type === "heal") {
     result = result.filter(
       e =>
         e === "heal" ||
-        ["elements", "wild_elements", "bless", "strengthen", "ward"].includes(e)
+        ["bless", "strengthen", "ward", "elements", "wild_elements"].includes(e)
     );
   }
 
-  // Teleport nunca pode receber jump
+  // Teleport nunca recebe jump
   if (action.type === "teleport") {
     result = result.filter(e => e !== "jump");
   }
 
-  // Se a ação já tem jump base, não permitir comprar jump
+  // Se já tiver jump base, não pode comprar jump
   if (action.jump === true) {
     result = result.filter(e => e !== "jump");
   }
