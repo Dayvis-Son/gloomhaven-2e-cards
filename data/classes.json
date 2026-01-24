@@ -1,8 +1,6 @@
 [
-  { "id": "brute", "name": "Brute" },
-  { "id": "scoundrel", "name": "Scoundrel" },
-  { "id": "spellweaver", "name": "Spellweaver" },
-  { "id": "tinkerer", "name": "Tinkerer" },
-  { "id": "mindthief", "name": "Mindthief" },
-  { "id": "cragheart", "name": "Cragheart" }
+  {
+    "id": "brute",
+    "name": "Brute"
+  }
 ]
