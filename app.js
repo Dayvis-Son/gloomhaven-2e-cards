@@ -93,15 +93,28 @@ function renderActions(actions, container) {
     const row = document.createElement("div");
     row.className = "action-row";
 
+    const label = document.createElement("span");
+    label.textContent = `${action.type.toUpperCase()} ${action.value ?? ""}`;
+
+    const slots = document.createElement("span");
+    slots.className = "slots";
+
+    if (action.slots) {
+      action.slots.forEach(s => {
+        const icon = document.createElement("span");
+        icon.textContent = SLOT_ICONS[s] ?? s;
+        slots.appendChild(icon);
+      });
+    }
+
     const btn = document.createElement("button");
     btn.textContent = "Enhance";
     btn.onclick = () => selectAction(action);
 
-    const label = document.createElement("span");
-    label.textContent = `${action.type.toUpperCase()} ${action.value ?? ""}`;
-
     row.appendChild(label);
+    row.appendChild(slots);
     row.appendChild(btn);
+
     container.appendChild(row);
   });
 }
@@ -134,9 +147,10 @@ function buildEnhancementOptions() {
   enhancementKeys = applyConditionalFilters(selectedAction, enhancementKeys);
 
   enhancementKeys.forEach(key => {
+    const rule = possible.find(p => p.enhancement === key);
     const opt = document.createElement("option");
     opt.value = key;
-    opt.textContent = key;
+    opt.textContent = `${SLOT_ICONS[rule.slot]} ${key}`;
     enhancementSelectEl.appendChild(opt);
   });
 }
@@ -152,7 +166,7 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  // AREA HEX (dynamic)
+  // AREA HEX
   if (enh === "area_hex") {
     costOutputEl.innerHTML = `
       <label>
@@ -191,7 +205,6 @@ enhancementSelectEl.addEventListener("change", () => {
     return;
   }
 
-  // NORMAL ENHANCEMENTS
   const cost = enhancements[enh]?.single?.["1"];
   if (!cost) {
     costOutputEl.textContent = "No cost data";
