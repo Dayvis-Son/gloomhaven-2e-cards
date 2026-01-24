@@ -35,6 +35,8 @@ const totalCostEl = document.getElementById("card-total-cost");
 const topPreviewEl = document.getElementById("top-preview");
 const bottomPreviewEl = document.getElementById("bottom-preview");
 
+const resetBtn = document.getElementById("reset-card-enhancements");
+
 /* ---------------- LOAD ---------------- */
 
 Promise.all([
@@ -123,8 +125,7 @@ function selectAction(action) {
   enhancementSelectEl.innerHTML = `<option value="">Select</option>`;
   costOutputEl.innerHTML = "";
 
-  const used = usedSlots.get(action).length;
-  if (used >= action.slots.length) return;
+  if (usedSlots.get(action).length >= action.slots.length) return;
 
   let pool = [];
   action.slots.forEach(s => {
@@ -159,7 +160,7 @@ enhancementSelectEl.onchange = () => {
   if (enh === "area_hex") {
     cost = Math.ceil(200 / (currentAction.hexes || 1));
   } else {
-    cost = costs[enh]?.single?.["1"];
+    cost = costs[enh]?.single?.["1"] ?? 0;
   }
 
   usedSlots.get(currentAction).push(enh);
@@ -171,7 +172,7 @@ enhancementSelectEl.onchange = () => {
   updateTotal();
 };
 
-/* ---------------- PREVIEW (4 + 5 + 6) ---------------- */
+/* ---------------- PREVIEW ---------------- */
 
 function renderPreview() {
   topPreviewEl.innerHTML = "";
@@ -186,14 +187,13 @@ function renderPreview() {
       base.textContent = `${a.type.toUpperCase()} ${a.value ?? ""}`;
 
       const icons = document.createElement("span");
-
       applied
         .filter(e => e.action === a)
-        .forEach((e, i) => {
+        .forEach(e => {
           const ic = document.createElement("span");
           ic.textContent = enhancementIcon(e.enh);
+          ic.onclick = () => removeEnhancement(a, e.enh);
           ic.style.cursor = "pointer";
-          ic.onclick = () => removeEnhancement(a, i);
           icons.appendChild(ic);
         });
 
@@ -209,13 +209,12 @@ function renderPreview() {
 
 /* ---------------- REMOVE ---------------- */
 
-function removeEnhancement(action, index) {
-  applied.splice(
-    applied.findIndex(e => e.action === action),
-    1
-  );
+function removeEnhancement(action, enh) {
+  const i = applied.findIndex(e => e.action === action && e.enh === enh);
+  if (i === -1) return;
+
+  applied.splice(i, 1);
   usedSlots.get(action).pop();
-  total -= 0;
   renderPreview();
   updateTotal();
 }
@@ -259,12 +258,18 @@ function updateTotal() {
 
 /* ---------------- RESET ---------------- */
 
-document
-  .getElementById("reset-card-enhancements")
-  .onclick = () => {
-    applied = [];
-    total = 0;
-    usedSlots.clear?.();
-    renderPreview();
-    updateTotal();
-  };
+resetBtn.onclick = () => {
+  applied = [];
+  total = 0;
+  usedSlots.clear?.();
+  renderPreview();
+  updateTotal();
+};
+
+/* ---------------- PRINT (7️⃣) ---------------- */
+
+const printBtn = document.createElement("button");
+printBtn.textContent = "Print Card";
+printBtn.style.marginTop = "10px";
+printBtn.onclick = () => window.print();
+cardDetailEl.appendChild(printBtn);
