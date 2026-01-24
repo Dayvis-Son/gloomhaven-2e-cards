@@ -1,20 +1,20 @@
+// app.js
 import {
+  SLOT_ICONS,
   ACTION_BASE_RULES,
-  applyConditionalFilters,
-  SLOT_ICONS
+  applyConditionalFilters
 } from "./data/enhancement-logic.js";
 
-let allCards = [];
-let enhancementCosts = {};
-let currentCard = null;
-let currentAction = null;
+let classes = [];
+let cards = [];
+let enhancements = {};
 
-const usedSlots = new WeakMap();
+let selectedClass = null;
+let selectedCard = null;
+let selectedAction = null;
 
 const classListEl = document.getElementById("class-list");
 const cardListEl = document.getElementById("card-list");
-const contentTitleEl = document.getElementById("content-title");
-
 const cardDetailEl = document.getElementById("card-detail");
 const cardNameEl = document.getElementById("card-name");
 
@@ -22,223 +22,209 @@ const topActionsEl = document.getElementById("top-actions");
 const bottomActionsEl = document.getElementById("bottom-actions");
 
 const enhancementSelectEl = document.getElementById("enhancement-select");
+const costOutputEl = document.getElementById("cost-output");
+const totalCostEl = document.getElementById("card-total-cost");
 
-const topPreviewEl = document.getElementById("top-preview");
-const bottomPreviewEl = document.getElementById("bottom-preview");
+let appliedEnhancements = [];
+let totalCost = 0;
 
-const resetBtnEl = document.getElementById("reset-card-enhancements");
+/* -------------------- LOAD DATA -------------------- */
 
-/* ================= LOAD ================= */
+async function loadData() {
+  classes = await fetch("./data/classes.json").then(r => r.json());
+  cards = await fetch("./data/cards.json").then(r => r.json());
+  enhancements = await fetch("./data/enhancements.json").then(r => r.json());
 
-Promise.all([
-  fetch("data/cards.json").then(r => r.json()),
-  fetch("data/classes.json").then(r => r.json()),
-  fetch("data/enhancements.json").then(r => r.json())
-]).then(([cards, classes]) => {
-  allCards = cards;
+  renderClasses();
+}
 
+loadData();
+
+/* -------------------- RENDER CLASSES -------------------- */
+
+function renderClasses() {
+  classListEl.innerHTML = "";
   classes.forEach(cls => {
     const li = document.createElement("li");
     li.textContent = cls.name;
-    li.onclick = () => showCards(cls.id, cls.name);
+    li.onclick = () => selectClass(cls.id);
     classListEl.appendChild(li);
   });
-});
+}
 
-/* ================= LIST ================= */
+function selectClass(classId) {
+  selectedClass = classId;
+  renderCards();
+}
 
-function showCards(classId, className) {
-  contentTitleEl.textContent = `${className} Cards`;
+/* -------------------- RENDER CARDS -------------------- */
+
+function renderCards() {
   cardListEl.innerHTML = "";
-  cardDetailEl.style.display = "none";
-
-  allCards
-    .filter(c => c.class === classId)
+  cards
+    .filter(c => c.class === selectedClass)
     .forEach(card => {
       const li = document.createElement("li");
-      li.textContent = `${card.name} (Level ${card.level})`;
-      li.onclick = () => showCard(card);
+      li.textContent = card.name;
+      li.onclick = () => selectCard(card);
       cardListEl.appendChild(li);
     });
 }
 
-function showCard(card) {
-  currentCard = card;
+function selectCard(card) {
+  selectedCard = card;
+  appliedEnhancements = [];
+  totalCost = 0;
+  updateTotalCost();
 
+  cardNameEl.textContent = card.name;
   cardDetailEl.style.display = "block";
-  cardNameEl.textContent = `${card.name} (Level ${card.level})`;
-
-  topActionsEl.innerHTML = "";
-  bottomActionsEl.innerHTML = "";
 
   renderActions(card.top, topActionsEl);
   renderActions(card.bottom, bottomActionsEl);
-  renderCardPreview(card);
 }
 
-/* ================= ACTION LIST ================= */
+/* -------------------- ACTIONS -------------------- */
 
 function renderActions(actions, container) {
+  container.innerHTML = "";
+
   actions.forEach(action => {
-    if (!action.enhancement_slots) return;
-
-    if (!usedSlots.has(action)) usedSlots.set(action, []);
-
     const row = document.createElement("div");
     row.className = "action-row";
 
     const btn = document.createElement("button");
-    btn.textContent = action.type.toUpperCase();
+    btn.textContent = "Enhance";
     btn.onclick = () => selectAction(action);
 
-    const slots = document.createElement("div");
-    slots.className = "slots";
+    const label = document.createElement("span");
+    label.textContent = `${action.type.toUpperCase()} ${action.value ?? ""}`;
 
-    action.enhancement_slots.forEach((slot, i) => {
-      const s = document.createElement("span");
-      s.textContent = SLOT_ICONS[slot];
-      if (i < usedSlots.get(action).length) s.classList.add("used");
-      slots.appendChild(s);
-    });
-
+    row.appendChild(label);
     row.appendChild(btn);
-    row.appendChild(slots);
     container.appendChild(row);
   });
 }
 
-/* ================= PREVIEW ================= */
-
-function renderCardPreview(card) {
-  topPreviewEl.innerHTML = "";
-  bottomPreviewEl.innerHTML = "";
-
-  renderPreviewHalf(card.top, topPreviewEl);
-  renderPreviewHalf(card.bottom, bottomPreviewEl);
-}
-
-function renderPreviewHalf(actions, container) {
-  actions.forEach(action => {
-    const div = document.createElement("div");
-    div.className = "action-preview";
-
-    const applied = usedSlots.get(action) || [];
-    const grouped = groupEnhancements(applied);
-
-    let text = action.type.toUpperCase();
-    if (action.value !== undefined) text += ` ${action.value}`;
-
-    grouped.forEach(g => {
-      if (g.type === "jump") {
-        text += " Jump";
-      } else if (g.type === "area_hex") {
-        text += ` ⬢+${g.count}`;
-      } else if (g.isStatus) {
-        text += ` ${getEnhancementIcon(g.type)}`;
-      } else {
-        text += ` +${g.count}`;
-      }
-    });
-
-    div.textContent = text;
-    container.appendChild(div);
-  });
-}
-
-function groupEnhancements(list) {
-  const map = {};
-
-  list.forEach(e => {
-    if (!map[e]) map[e] = 0;
-    map[e]++;
-  });
-
-  return Object.entries(map).map(([type, count]) => ({
-    type,
-    count,
-    isStatus: [
-      "poison",
-      "wound",
-      "curse",
-      "muddle",
-      "immobilize",
-      "bless",
-      "strengthen",
-      "ward"
-    ].includes(type)
-  }));
-}
-
-/* ================= SELECT ================= */
-
 function selectAction(action) {
-  currentAction = action;
+  selectedAction = action;
+  buildEnhancementOptions();
+}
 
+/* -------------------- ENHANCEMENTS -------------------- */
+
+function buildEnhancementOptions() {
   enhancementSelectEl.innerHTML = `<option value="">Select enhancement</option>`;
+  costOutputEl.innerHTML = "";
 
-  const rules = ACTION_BASE_RULES[action.type];
+  if (!selectedAction) return;
+
+  const rules = ACTION_BASE_RULES[selectedAction.type];
   if (!rules) return;
 
-  let allowed = [];
+  let possible = [];
 
-  action.enhancement_slots.forEach(slot => {
-    if (rules[slot]) allowed.push(...rules[slot]);
+  Object.entries(rules).forEach(([slot, list]) => {
+    list.forEach(e => {
+      possible.push({ enhancement: e, slot });
+    });
   });
 
-  allowed = [...new Set(allowed)];
-  allowed = applyConditionalFilters(action, allowed);
+  let enhancementKeys = possible.map(p => p.enhancement);
+  enhancementKeys = applyConditionalFilters(selectedAction, enhancementKeys);
 
-  allowed.forEach(e => {
+  enhancementKeys.forEach(key => {
     const opt = document.createElement("option");
-    opt.value = e;
-    opt.textContent = e.toUpperCase();
+    opt.value = key;
+    opt.textContent = key;
     enhancementSelectEl.appendChild(opt);
   });
 }
 
-/* ================= APPLY ================= */
+/* -------------------- COST LOGIC -------------------- */
+
+function calculateAreaHexCost(baseHexes) {
+  return Math.ceil(200 / baseHexes);
+}
 
 enhancementSelectEl.addEventListener("change", () => {
-  if (!currentAction) return;
-
+  costOutputEl.innerHTML = "";
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  usedSlots.get(currentAction).push(enh);
-  enhancementSelectEl.value = "";
+  // AREA HEX (dynamic)
+  if (enh === "area_hex") {
+    costOutputEl.innerHTML = `
+      <label>
+        Base hexes:
+        <select id="area-hex-count">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+      <div id="area-hex-cost"></div>
+      <button id="apply-area">Apply</button>
+    `;
 
-  renderActions(currentCard.top, topActionsEl);
-  renderActions(currentCard.bottom, bottomActionsEl);
-  renderCardPreview(currentCard);
+    const hexSelect = document.getElementById("area-hex-count");
+    const costEl = document.getElementById("area-hex-cost");
+    const applyBtn = document.getElementById("apply-area");
+
+    function update() {
+      costEl.textContent =
+        "Cost: " + calculateAreaHexCost(hexSelect.value) + "g";
+    }
+
+    hexSelect.onchange = update;
+    update();
+
+    applyBtn.onclick = () => {
+      const cost = calculateAreaHexCost(hexSelect.value);
+      appliedEnhancements.push("area_hex");
+      totalCost += cost;
+      updateTotalCost();
+    };
+
+    return;
+  }
+
+  // NORMAL ENHANCEMENTS
+  const cost = enhancements[enh]?.single?.["1"];
+  if (!cost) {
+    costOutputEl.textContent = "No cost data";
+    return;
+  }
+
+  costOutputEl.innerHTML = `
+    Cost: ${cost}g
+    <br />
+    <button id="apply-enh">Apply</button>
+  `;
+
+  document.getElementById("apply-enh").onclick = () => {
+    appliedEnhancements.push(enh);
+    totalCost += cost;
+    updateTotalCost();
+  };
 });
 
-/* ================= RESET ================= */
+/* -------------------- TOTAL -------------------- */
 
-resetBtnEl.addEventListener("click", () => {
-  if (!currentCard) return;
-
-  [...currentCard.top, ...currentCard.bottom].forEach(a =>
-    usedSlots.set(a, [])
-  );
-
-  renderActions(currentCard.top, topActionsEl);
-  renderActions(currentCard.bottom, bottomActionsEl);
-  renderCardPreview(currentCard);
-});
-
-/* ================= ICONS ================= */
-
-function getEnhancementIcon(e) {
-  return {
-    poison: "☠️",
-    wound: "🩸",
-    curse: "🧿",
-    muddle: "💫",
-    immobilize: "⛓️",
-    bless: "✨",
-    strengthen: "💪",
-    ward: "🛡️",
-    elements: "🔥",
-    wild_elements: "🌈"
-  }[e] || "";
+function updateTotalCost() {
+  totalCostEl.textContent = `${totalCost}g`;
 }
+
+/* -------------------- RESET -------------------- */
+
+document
+  .getElementById("reset-card-enhancements")
+  .addEventListener("click", () => {
+    appliedEnhancements = [];
+    totalCost = 0;
+    updateTotalCost();
+    costOutputEl.innerHTML = "";
+    enhancementSelectEl.value = "";
+  });
