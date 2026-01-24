@@ -26,8 +26,9 @@
     <div id="card-detail" style="display:none">
       <h2 id="card-name"></h2>
 
-      <!-- CARD PREVIEW -->
       <div class="card-preview">
+        <img id="card-image" style="width:100%; border-radius:8px; display:none; margin-bottom:10px;" />
+
         <div class="card-half-preview top">
           <h4>TOP</h4>
           <div id="top-preview"></div>
@@ -41,7 +42,10 @@
         </div>
       </div>
 
-      <!-- ACTIONS -->
+      <div class="card-total">
+        Total card cost: <strong><span id="card-total-cost">0g</span></strong>
+      </div>
+
       <div class="card-actions">
         <div class="card-half">
           <h3>TOP</h3>
@@ -54,7 +58,6 @@
         </div>
       </div>
 
-      <!-- ENHANCEMENT PANEL -->
       <div class="enhancement-panel">
         <label>
           Enhancement:
@@ -64,31 +67,15 @@
         </label>
 
         <div id="cost-output"></div>
-
-        <hr />
-
-        <h3>Total Card Cost</h3>
-        <div id="card-total-cost">0g</div>
       </div>
 
       <button id="reset-card-enhancements" class="danger">
         Clear Card Enhancements
       </button>
-      <button id="export-image">Export Card (PNG)</button>
-      <button id="export-pdf">Export Card (PDF)</button>
-      <button id="export-json">Export Card (JSON)</button>
-<button id="import-json">Import Card (JSON)</button>
-<input type="file" id="import-json-file" accept=".json" style="display:none" />
-
     </div>
-
   </section>
-
 </main>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
 <script type="module" src="app.js"></script>
-
-
 </body>
 </html>
