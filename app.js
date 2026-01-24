@@ -132,25 +132,36 @@ function buildEnhancementOptions() {
 
   if (!selectedAction) return;
 
-  const rules = ACTION_BASE_RULES[selectedAction.type];
-  if (!rules) return;
-
-  let possible = [];
+  const rules = ACTION_BASE_RULES[selectedAction.type] || {};
+  const allowedByRules = [];
 
   Object.entries(rules).forEach(([slot, list]) => {
     list.forEach(e => {
-      possible.push({ enhancement: e, slot });
+      allowedByRules.push({ enhancement: e, slot });
     });
   });
 
-  let enhancementKeys = possible.map(p => p.enhancement);
-  enhancementKeys = applyConditionalFilters(selectedAction, enhancementKeys);
+  const allowedKeys = applyConditionalFilters(
+    selectedAction,
+    allowedByRules.map(e => e.enhancement)
+  );
 
-  enhancementKeys.forEach(key => {
-    const rule = possible.find(p => p.enhancement === key);
+  const uniqueEnhancements = [
+    ...new Set(allowedByRules.map(e => e.enhancement))
+  ];
+
+  uniqueEnhancements.forEach(enh => {
+    const rule = allowedByRules.find(e => e.enhancement === enh);
     const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = `${SLOT_ICONS[rule.slot]} ${key}`;
+
+    opt.value = enh;
+    opt.textContent = `${SLOT_ICONS[rule.slot]} ${enh}`;
+
+    if (!allowedKeys.includes(enh)) {
+      opt.disabled = true;
+      opt.textContent += " (not allowed)";
+    }
+
     enhancementSelectEl.appendChild(opt);
   });
 }
@@ -166,7 +177,6 @@ enhancementSelectEl.addEventListener("change", () => {
   const enh = enhancementSelectEl.value;
   if (!enh) return;
 
-  // AREA HEX
   if (enh === "area_hex") {
     costOutputEl.innerHTML = `
       <label>
