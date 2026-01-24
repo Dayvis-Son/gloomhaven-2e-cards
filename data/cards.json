@@ -1,6 +1,5 @@
 [
   {
-    "id": "brute_trample",
     "class": "brute",
     "name": "Trample",
     "level": 1,
@@ -9,7 +8,7 @@
         "type": "attack",
         "value": 3,
         "enhanceable": true,
-        "enhancement_slots": ["square"]
+        "enhancement_slots": ["square", "circle", "diamond"]
       }
     ],
     "bottom": [
@@ -17,23 +16,56 @@
         "type": "move",
         "value": 4,
         "enhanceable": true,
-        "loss": true,
         "enhancement_slots": ["square"]
       }
     ]
   },
+
   {
-    "id": "brute_leaping_cleave",
     "class": "brute",
-    "name": "Leaping Cleave",
+    "name": "Shield Bash",
     "level": 1,
     "top": [
       {
         "type": "attack",
-        "value": 3,
-        "multi": true,
+        "value": 2,
+        "enhanceable": true,
+        "enhancement_slots": ["square", "circle", "diamond_plus"]
+      },
+      {
+        "type": "push",
+        "value": 2,
         "enhanceable": true,
         "enhancement_slots": ["square"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "shield",
+        "value": 1,
+        "enhanceable": true,
+        "enhancement_slots": ["square"]
+      }
+    ]
+  },
+
+  {
+    "class": "brute",
+    "name": "Sweeping Blow",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "value": 2,
+        "enhanceable": true,
+        "enhancement_slots": ["square", "circle"],
+        "hexes": 3
+      },
+      {
+        "type": "area",
+        "enhanceable": true,
+        "enhancement_slots": ["hex"],
+        "hexes": 3
       }
     ],
     "bottom": [
@@ -45,62 +77,17 @@
       }
     ]
   },
+
   {
-  "id": "brute_shield_bash",
-  "class": "brute",
-  "name": "Shield Bash",
-  "level": 1,
-  "top": [
-    {
-      "type": "attack",
-      "value": 2,
-      "enhanceable": true,
-      "loss": true,
-      "enhancement_slots": ["square"]
-    }
-  ],
-  "bottom": [
-    {
-      "type": "move",
-      "value": 2,
-      "enhanceable": true,
-      "enhancement_slots": ["square"]
-    }
-  ]
-},
-  {
-    "id": "brute_eye_for_an_eye",
-    "class": "brute",
-    "name": "Eye for an Eye",
-    "level": "X",
-    "top": [
-      {
-        "type": "retaliate",
-        "value": 2,
-        "enhanceable": true,
-        "enhancement_slots": ["diamond"]
-      }
-    ],
-    "bottom": [
-      {
-        "type": "attack",
-        "value": 3,
-        "enhanceable": true,
-        "enhancement_slots": ["square"]
-      }
-    ]
-  },
-  {
-    "id": "brute_provoking_roar",
     "class": "brute",
     "name": "Provoking Roar",
     "level": 1,
     "top": [
       {
-        "type": "attack",
+        "type": "retaliate",
         "value": 2,
         "enhanceable": true,
-        "enhancement_slots": ["square"]
+        "enhancement_slots": ["square", "diamond_plus"]
       }
     ],
     "bottom": [
@@ -108,7 +95,29 @@
         "type": "heal",
         "value": 2,
         "enhanceable": true,
-        "enhancement_slots": ["circle"]
+        "enhancement_slots": ["square", "circle", "diamond_plus"]
+      }
+    ]
+  },
+
+  {
+    "class": "brute",
+    "name": "Balanced Measure",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "value": 0,
+        "enhanceable": true,
+        "enhancement_slots": ["square", "circle"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "value": 2,
+        "enhanceable": true,
+        "enhancement_slots": ["square"]
       }
     ]
   }
