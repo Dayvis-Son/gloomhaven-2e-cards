@@ -1,107 +1,194 @@
 [
   {
-    "id": "balanced-measure",
-    "name": "Balanced Measure",
     "class": "brute",
+    "name": "Balanced Measure",
     "level": 1,
     "top": [
       {
         "type": "attack",
-        "value": "X",
-        "enhanceable": true,
+        "text": "Attack X",
         "enhancement_slots": []
       }
     ],
     "bottom": [
       {
         "type": "move",
-        "value": "X",
-        "enhanceable": true,
+        "text": "Move X",
         "enhancement_slots": []
       }
     ]
   },
   {
-    "id": "eye-for-an-eye",
-    "name": "Eye for an Eye",
     "class": "brute",
+    "name": "Eye for an Eye",
     "level": 1,
     "top": [
       {
         "type": "shield",
-        "value": 1,
-        "enhanceable": true,
-        "enhancement_slots": []
-      },
-      {
-        "type": "retaliate",
-        "value": 1,
-        "enhanceable": true,
+        "text": "Shield 1, Retaliate 1",
         "enhancement_slots": []
       }
     ],
     "bottom": [
       {
         "type": "heal",
-        "value": 3,
-        "enhanceable": true,
+        "text": "Heal 3",
         "enhancement_slots": ["square"]
       }
     ]
   },
   {
-    "id": "grab-and-go",
-    "name": "Grab and Go",
     "class": "brute",
+    "name": "Grab and Go",
     "level": 1,
     "top": [
       {
-        "type": "loot",
-        "value": 1,
-        "enhanceable": false
-      },
-      {
         "type": "heal",
-        "value": 2,
-        "enhanceable": true,
+        "text": "Loot 1, Heal 2",
         "enhancement_slots": ["square"]
       }
     ],
     "bottom": [
       {
         "type": "move",
-        "value": 4,
-        "enhanceable": true,
+        "text": "Move 4",
         "enhancement_slots": ["square"]
       }
     ]
   },
   {
-    "id": "leaping-cleave",
-    "name": "Leaping Cleave",
     "class": "brute",
+    "name": "Leaping Cleave",
     "level": 1,
     "top": [
       {
         "type": "attack",
-        "value": 3,
-        "enhanceable": true,
+        "text": "Attack 3",
         "enhancement_slots": ["square"]
       }
     ],
     "bottom": [
       {
         "type": "move",
-        "value": 3,
-        "jump": true,
-        "enhanceable": true,
-        "enhancement_slots": ["square"]
-      },
+        "text": "Move 3 (Jump), Push 2",
+        "enhancement_slots": ["square", "square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Overwhelming Assault",
+    "level": 1,
+    "top": [
       {
-        "type": "push",
-        "value": 2,
-        "enhanceable": true,
+        "type": "attack",
+        "text": "Attack 7 (Loss)",
+        "loss": true,
+        "enhancement_slots": ["diamond"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "text": "Move 3 (Jump)",
         "enhancement_slots": ["square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Shield Bash",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "text": "Attack 4 (Loss)",
+        "loss": true,
+        "enhancement_slots": ["diamond"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "text": "Move 2, Shield 1",
+        "enhancement_slots": ["square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Skewer",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "text": "Attack 3",
+        "enhancement_slots": ["square"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "text": "Move 7 (Loss)",
+        "loss": true,
+        "enhancement_slots": ["square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Spare Dagger",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "text": "Attack 3",
+        "enhancement_slots": []
+      }
+    ],
+    "bottom": [
+      {
+        "type": "attack",
+        "text": "Attack 2, Pierce 1",
+        "enhancement_slots": ["diamond", "square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Trample",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "text": "Attack 3",
+        "enhancement_slots": ["diamond"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "text": "Move 4 (Jump)",
+        "enhancement_slots": ["square"]
+      }
+    ]
+  },
+  {
+    "class": "brute",
+    "name": "Warding Strength",
+    "level": 1,
+    "top": [
+      {
+        "type": "attack",
+        "text": "Attack 2",
+        "enhancement_slots": ["square"]
+      }
+    ],
+    "bottom": [
+      {
+        "type": "shield",
+        "text": "Shield 1, Retaliate 1",
+        "enhancement_slots": []
       }
     ]
   }
