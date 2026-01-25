@@ -1,6 +1,8 @@
-[
-  {
+{
+  "brute": {
     "id": "brute",
-    "name": "Brute"
+    "name": "Brute",
+    "icon": "brute.png",
+    "edition": "gloomhaven_2e"
   }
-]
+}
