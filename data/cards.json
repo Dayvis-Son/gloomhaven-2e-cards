@@ -1,14 +1,70 @@
 [
   {
+    "id": "balanced-measure",
+    "name": "Balanced Measure",
     "class": "brute",
-    "name": "Trample",
     "level": 1,
     "top": [
       {
         "type": "attack",
+        "value": "X",
+        "enhanceable": true,
+        "enhancement_slots": []
+      }
+    ],
+    "bottom": [
+      {
+        "type": "move",
+        "value": "X",
+        "enhanceable": true,
+        "enhancement_slots": []
+      }
+    ]
+  },
+  {
+    "id": "eye-for-an-eye",
+    "name": "Eye for an Eye",
+    "class": "brute",
+    "level": 1,
+    "top": [
+      {
+        "type": "shield",
+        "value": 1,
+        "enhanceable": true,
+        "enhancement_slots": []
+      },
+      {
+        "type": "retaliate",
+        "value": 1,
+        "enhanceable": true,
+        "enhancement_slots": []
+      }
+    ],
+    "bottom": [
+      {
+        "type": "heal",
         "value": 3,
         "enhanceable": true,
-        "enhancement_slots": ["square", "circle", "diamond"]
+        "enhancement_slots": ["square"]
+      }
+    ]
+  },
+  {
+    "id": "grab-and-go",
+    "name": "Grab and Go",
+    "class": "brute",
+    "level": 1,
+    "top": [
+      {
+        "type": "loot",
+        "value": 1,
+        "enhanceable": false
+      },
+      {
+        "type": "heal",
+        "value": 2,
+        "enhanceable": true,
+        "enhancement_slots": ["square"]
       }
     ],
     "bottom": [
@@ -20,101 +76,29 @@
       }
     ]
   },
-
   {
+    "id": "leaping-cleave",
+    "name": "Leaping Cleave",
     "class": "brute",
-    "name": "Shield Bash",
     "level": 1,
     "top": [
       {
         "type": "attack",
-        "value": 2,
-        "enhanceable": true,
-        "enhancement_slots": ["square", "circle", "diamond_plus"]
-      },
-      {
-        "type": "push",
-        "value": 2,
+        "value": 3,
         "enhanceable": true,
         "enhancement_slots": ["square"]
-      }
-    ],
-    "bottom": [
-      {
-        "type": "shield",
-        "value": 1,
-        "enhanceable": true,
-        "enhancement_slots": ["square"]
-      }
-    ]
-  },
-
-  {
-    "class": "brute",
-    "name": "Sweeping Blow",
-    "level": 1,
-    "top": [
-      {
-        "type": "attack",
-        "value": 2,
-        "enhanceable": true,
-        "enhancement_slots": ["square", "circle"],
-        "hexes": 3
-      },
-      {
-        "type": "area",
-        "enhanceable": true,
-        "enhancement_slots": ["hex"],
-        "hexes": 3
       }
     ],
     "bottom": [
       {
         "type": "move",
         "value": 3,
+        "jump": true,
         "enhanceable": true,
         "enhancement_slots": ["square"]
-      }
-    ]
-  },
-
-  {
-    "class": "brute",
-    "name": "Provoking Roar",
-    "level": 1,
-    "top": [
+      },
       {
-        "type": "retaliate",
-        "value": 2,
-        "enhanceable": true,
-        "enhancement_slots": ["square", "diamond_plus"]
-      }
-    ],
-    "bottom": [
-      {
-        "type": "heal",
-        "value": 2,
-        "enhanceable": true,
-        "enhancement_slots": ["square", "circle", "diamond_plus"]
-      }
-    ]
-  },
-
-  {
-    "class": "brute",
-    "name": "Balanced Measure",
-    "level": 1,
-    "top": [
-      {
-        "type": "attack",
-        "value": 0,
-        "enhanceable": true,
-        "enhancement_slots": ["square", "circle"]
-      }
-    ],
-    "bottom": [
-      {
-        "type": "move",
+        "type": "push",
         "value": 2,
         "enhanceable": true,
         "enhancement_slots": ["square"]
